@@ -19,7 +19,7 @@ BEC13<- st_read(dsn = BEC13.path, layer = "BEC13_v2")
 #Queries for Range extent
 BGC.Units.Min <- c("ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1")
 # minimal evidence supports occurrence of Ws04 in the BWBS. LMH 52 does not list Ws04 in the BWBS or SWB.  LMH68 does not list Ws04 or related Fl05 in any BWBS.  BWBSmw and wk1 seem to be at the NE margin of S. drummondiana and Spiraea douglasii range. Two plots support the occurrence of the Ws04 in the SBSdh1 (Kyla Rushton personal communication)
-BGC.Units.Max <- c("BWBSwk1", "BWBSmw", "ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1")
+BGC.Units.Max <- c("BWBSwk1", "BWBSmw", "ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1", "SBSwk2")
 
 BGC.Range.Min <- BEC13 %>% filter(BEC13$MAP_LABEL %in% BGC.Units.Min)
 BGC.Range.Max <- BEC13 %>% filter(BEC13$MAP_LABEL %in% BGC.Units.Max)
@@ -32,8 +32,7 @@ BGC.MCP.Max.area.km2 <- setNames(as.numeric(st_area(BGC.MCP.Max)) / 1e6, "BGC.MC
 BGC.Range.Min.km2 <- setNames(sum(BGC.Range.Min$Shape_Area, na.rm = TRUE)/ 1e6, "BGC.Range.Min.km2")
 BGC.Range.Max.km2 <- setNames(sum(BGC.Range.Max$Shape_Area, na.rm = TRUE)/ 1e6, "BGC.Range.Max.km2")
 ################################################## PROJECT BOUNDARIES - Ecosystem Mapping ##########
-###Maxiumum TEI Project Boundary Overlap Estimate
-# Create SF of ALL Ecosystem Mapping Projects which intersect the BGC.Range
+### Create SF of ALL Ecosystem Mapping Project Boundaries that overlap the widest possible BGC Range
 TEI.proj.bound.all <- st_read(
   dsn   = TEI.proj.bound.path,
   query = "
@@ -47,11 +46,22 @@ TEI.proj.bound.all <- st_read(
     )
   "
 )
-
-# filter those to just the ones that intersect the BGC range
+# filter to those that intersect the BGC range
 TEI.proj.bound.all <- st_filter(TEI.proj.bound.all, BGC.Range.Max)
-### determine MAX extent of overlap between selected ecosystem mapping projects and BGC Range 
-overlap_sf <- st_intersection(BGC.Range.Max, TEI.proj.bound.all)
+
+###Maxiumum TEI Project Boundary/BGC Range Overlap Estimate
+# This excludes PEM and other projects that inventory at a thematic scalle too coarse to capture the 20374
+# It includes all TEI datasets that could conceivably detect the 20374, though it is uncertain whether all
+# of these projects effectively inventory for the 20374. This only includes the core BGC Range, not the
+# BGCs where occurrence of the 20374 is yet to be confirmed with confidence.
+TEI.proj.bound.max <- st_read(
+  dsn   = TEI.proj.bound.path,
+  query = "
+    SELECT *
+    FROM WHSE_TERRESTRIAL_ECOLOGY_STE_TEI_PROJECT_BOUNDARIES_SP
+    WHERE BUSINESS_AREA_PROJECT_ID IN (1, 2, 4, 9, 27, 28, 79, 91, 108, 114, 115, 119, 135, 145, 149, 183, 184, 192, 196, 198, 208, 209, 213, 214, 216, 218, 219, 221, 222, 226, 231, 233, 239, 240, 244, 247, 248, 1027, 1037, 1046, 1048, 1049, 1054, 1055, 1058, 1059, 1060, 1068, 1070, 4479, 4482, 4498, 4508, 4523, 4917, 5679, 5680, 6130, 6131, 6473, 6484, 6526, 6536, 6537, 6605, 6624)
+  ")
+overlap_sf <- st_intersection(BGC.Range.Min, TEI.proj.bound.max)
 # Dissolve overlapping geometries
 overlap_sf <- st_union(overlap_sf)
 # Calculate area in m²
@@ -62,20 +72,15 @@ BGC.Range.Mapped.Max.Percent <- setNames(as.numeric(BGC.Range.Mapped.Max.km2/BGC
 ###Minimum TEI Project Boundary Overlap Estimate
 # Create SF of selected projects
 #TEI.proj.bound.selected <- st_read(dsn   = TEI.proj.bound.path,query = " SELECT * FROM WHSE_TERRESTRIAL_ECOLOGY_STE_TEI_PROJECT_BOUNDARIES_SP WHERE BUSINESS_AREA_PROJECT_ID IN (4, 135, 216, 233, 244, 1046, 1048, 1049, 1054, 4523, 4917, 6468, 6536, 6624)")
-TEI.proj.bound.selected <- st_read(
+TEI.proj.bound.min <- st_read(
   dsn   = TEI.proj.bound.path,
   query = "
     SELECT *
     FROM WHSE_TERRESTRIAL_ECOLOGY_STE_TEI_PROJECT_BOUNDARIES_SP
-    WHERE PROJECT_TYPE IN ('EXC', 'NEM', 'NEMNSS', 'NEMSEI', 'NEMWHR',
-    'SEI', 'SEIWHR', 'STS',
-      'TEM', 'TEMNSS', 'TEMSDM', 'TEMSEI', 'TEMSET', 'TEMTSM', 'TEMWHR',
-      'VEG', 'WET'
-    )
-  "
-)
+    WHERE BUSINESS_AREA_PROJECT_ID IN (4, 108, 135, 209, 216, 233, 239, 244, 1046, 1048, 1049, 1054, 1055, 4523, 6473, 6536, 6605, 6624)
+  ")
 ### determine MIN extent of overlap between selected ecosystem mapping projects and BGC Range 
-overlap_sf <- st_intersection(BGC.Range.Max, TEI.proj.bound.selected)
+overlap_sf <- st_intersection(BGC.Range.Min, TEI.proj.bound.min)
 # Dissolve overlapping geometries
 overlap_sf <- st_union(overlap_sf)
 # Calculate area in m²
@@ -83,17 +88,6 @@ overlap_sf$overlap_area_m2 <- st_area(overlap_sf)
 # Calculate area of BGC range that is overlapped by selected project boundaries
 BGC.Range.Mapped.Min.km2 <- setNames(as.numeric(sum(overlap_sf$overlap_area_m2)/ 1e6),"BGC.Range.Mapped.Min.km2")
 BGC.Range.Mapped.Min.Percent <- setNames(as.numeric(BGC.Range.Mapped.Min.km2/BGC.Range.Min.km2)*100,"Percent.BGC.Range.Mapped.Min")
-### Examine BAPIDS from LONG TABLE
-# Unique values only (attribute-only query)
-u <- st_read(TEI.Path, query = sprintf('SELECT DISTINCT "%s" FROM "%s"', "BAPID", "TEIS_Master_Long_Tbl"), quiet = TRUE)
-overlapping.BAPIDS <- unique(TEI.proj.bound.all$BUSINESS_AREA_PROJECT_ID)
-
-Missing.Projects <- setdiff(overlapping.BAPIDS, u$BAPID)
-
-TEI.proj.bound.all$missing_bapid <- ifelse(
-  TEI.proj.bound.all$BUSINESS_AREA_PROJECT_ID %in% Missing.Projects,
-  "yes", "no"
-)
 
 ################################################  BECMASTER - QUERY AND CLEAN ##################################################
 # Connect to BECMaster
@@ -168,44 +162,38 @@ BEC.Master.Focal <- BEC.Master.Focal %>%
 # These queries take about 1 hour to run
 # These queries warnings that don't seem to matter; "In CPL_read_ogr(dsn, layer, query, as.character(options), quiet,  :GDAL Error 1: Error occurred in filegdbtable.cpp at line 1777"
 ### Started with a wildcard query (~LIKE '%Ws04%') not required as only clean values (Ws04) returned 20251211
-
-Query.TEM.s <- c(
-  "SELECT",
-  "SDEC_1, SDEC_2, SDEC_3,",
-  "SITE_S1, SITE_S2, SITE_S3,",
-  "STRCT_S1, STRCT_S2, STRCT_S3,",
-  "STAND_A1, STAND_A2, STAND_A3,",
-  "SITEMC_S1, SITEMC_S2, SITEMC_S3,",
-  "BGC_ZONE, BGC_SUBZON, BGC_VRT, BGC_PHASE,",
-  "PLOT_NO, POLY_COM,",
-  "PROJ_ID, PROJ_TYPE, OBJECTID, TEIS_ID, PROJPOLYID, BAPID,",
-  "Shape_Area, shape",
-  "FROM TEIS_Master_Long_Tbl",
-  "WHERE",
-  "PROJ_TYPE IN (",
-  " 'ESA','EST','EXC','NEM','NEMNSS','NEMSEI','NEMWHR',",
-  " 'PEM','PEMSDM','PEMTBT','PEMWHR',",
-  " 'PREM','SEI','SEIWHR','STS',",
-  " 'TEM','TEMNSS','TEMSDM','TEMSEI','TEMSET','TEMTSM','TEMWHR',",
-  " 'VEG','WET'",
-  ")",
-  "AND (",
-  " SITE_S1 = 'Ws04' OR",
-  " SITE_S2 = 'Ws04' OR",
-  " SITE_S3 = 'Ws04'",
-  ")"
+# do not need to query SITEMC fields as they return no values, but note that they do in 6473 and 6605 which are manually entered below
+Query.TEM.s <- r"(
+SELECT
+  SDEC_1, SDEC_2, SDEC_3,
+  SITE_S1, SITE_S2, SITE_S3,
+  STRCT_S1, STRCT_S2, STRCT_S3,
+  STAND_A1, STAND_A2, STAND_A3,
+  SITEMC_S1, SITEMC_S2, SITEMC_S3,
+  BGC_ZONE, BGC_SUBZON, BGC_VRT, BGC_PHASE,
+  PLOT_NO, POLY_COM,
+  PROJ_ID, PROJ_TYPE, OBJECTID, TEIS_ID, PROJPOLYID, BAPID,
+  Shape_Area, shape
+FROM TEIS_Master_Long_Tbl
+WHERE PROJ_TYPE IN (
+  'ESA','EST','EXC','NEM','NEMNSS','NEMSEI','NEMWHR',
+  'PEM','PEMSDM','PEMTBT','PEMWHR',
+  'PREM','SEI','SEIWHR','STS',
+  'TEM','TEMNSS','TEMSDM','TEMSEI','TEMSET','TEMTSM','TEMWHR',
+  'VEG','WET'
 )
+AND (SITE_S1 = 'Ws04' OR SITE_S2 = 'Ws04' OR SITE_S3 = 'Ws04')
+)"
 
-Query.TEM.s <- paste(Query.TEM.s, collapse = " ")
 
-TEM.s.subset <- st_read(
+TEM.s <- st_read(
   dsn = TEI.Path,
   query = Query.TEM.s,
   quiet = TRUE
 )
 
 # Create a new column that concatenates the four BGC fields
-TEM.s.subset <- TEM.s.subset %>%
+TEM.s <- TEM.s %>%
   unite(
     col = BGC.Full,  # New column name
     BGC_ZONE, BGC_SUBZON, BGC_VRT, BGC_PHASE, # Columns to combine
@@ -214,9 +202,111 @@ TEM.s.subset <- TEM.s.subset %>%
     remove = FALSE
   )
 
-### Mapcode query
-# Start by limiting to projects with valid mapcodes and limit to SBS or SBPS
-Query.TEM.m <- c(
+### Mapcode Query
+# Initial query - narrows to relevant BAPIDS
+Query.TEM.m <- "
+SELECT 
+    SDEC_1, SDEC_2, SDEC_3,
+    SITE_S1, SITE_S2, SITE_S3,
+    STRCT_S1, STRCT_S2, STRCT_S3,
+    STAND_A1, STAND_A2, STAND_A3,
+    SITEMC_S1, SITEMC_S2, SITEMC_S3,
+    BGC_ZONE, BGC_SUBZON, BGC_VRT, BGC_PHASE,
+    PLOT_NO, POLY_COM,
+    PROJ_ID, PROJ_TYPE, OBJECTID, TEIS_ID, PROJPOLYID, BAPID,
+    Shape_Area, shape
+FROM TEIS_Master_Long_Tbl
+WHERE BAPID IN (4, 108, 135, 209, 216, 233, 239, 244, 1046, 1048, 1049, 1054, 1055)
+"
+
+TEM.m <- st_read(
+  dsn   = TEI.Path,
+  query = Query.TEM.m,
+  quiet = TRUE
+)
+
+# concatenate BGC
+TEM.m <- TEM.m %>%
+  unite(
+    col = BGC.Full,  # New column name
+    BGC_ZONE, BGC_SUBZON, BGC_VRT, BGC_PHASE, # Columns to combine
+    sep = "",
+    na.rm = TRUE, #not insert NA for NULL values
+    remove = FALSE
+  )
+
+# I checked and map codes are not appearing in site code field.
+# Further narrows to relevant mapcodes
+fields <- c("SITEMC_S1","SITEMC_S2","SITEMC_S3")
+vals <- c("DS", "WS", "WD")
+
+TEM.m <- TEM.m %>%
+  filter(if_any(all_of(fields), ~ . %in% vals))
+# Further narrows to relevant BGCs
+TEM.m <- TEM.m %>%
+  filter(BGC.Full %in% c(
+    "ESSFdc2", "ESSFxc", "IDFdk2", "IDFdm1", "MSdm1", 
+    "MSdm2", "MSxk", "SBPSmk", "SBPSxc", "SBSdk", 
+    "SBSdw2", "SBSmc2", "SBSmw", "SBSwk1"
+  ))
+
+# Final query for explicit BGC/BAPID/Mapcodes
+filter_condition <- 
+  (TEM.m$BGC.Full == 'SBSdk' & TEM.m$BAPID == 4 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'IDFdk2' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'MSxk' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'MSdm2' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'ESSFxc' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'ESSFdc2' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'SBSmw' & TEM.m$BAPID == 135 & (TEM.m$SITEMC_S1 == 'WD' | TEM.m$SITEMC_S2 == 'WD' | TEM.m$SITEMC_S3 == 'WD')) |
+  (TEM.m$BGC.Full == 'SBSdk' & TEM.m$BAPID == 209 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'SBSdk' & TEM.m$BAPID == 216 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'SBSmc2' & TEM.m$BAPID == 216 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'SBSmw' & TEM.m$BAPID == 233 & (TEM.m$SITEMC_S1 == 'WD' | TEM.m$SITEMC_S2 == 'WD' | TEM.m$SITEMC_S3 == 'WD')) |
+  (TEM.m$BGC.Full == 'IDFdm1' & TEM.m$BAPID == 239 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'MSdm1' & TEM.m$BAPID == 239 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'SBSmw' & TEM.m$BAPID == 244 & (TEM.m$SITEMC_S1 == 'WD' | TEM.m$SITEMC_S2 == 'WD' | TEM.m$SITEMC_S3 == 'WD')) |
+  (TEM.m$BGC.Full == 'SBSwk1' & TEM.m$BAPID == 1046 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
+  (TEM.m$BGC.Full == 'SBSdw2' & TEM.m$BAPID == 1048 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
+  (TEM.m$BGC.Full == 'SBPSmk' & TEM.m$BAPID == 1049 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
+  (TEM.m$BGC.Full == 'SBPSxc' & TEM.m$BAPID == 1054 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
+  (TEM.m$BGC.Full == 'MSdm1' & TEM.m$BAPID == 1055 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'IDFdm1' & TEM.m$BAPID == 1055 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS'))
+
+TEM.m <- TEM.m %>%
+  filter(!!filter_condition)
+
+### Manually add BAPID 6605
+Query.TEM.6605 <- c(
+  "SELECT",
+  "SDEC_1, SDEC_2, SDEC_3,",
+  "SITE_S1, SITE_S2, SITE_S3,",
+  "STRCT_S1, STRCT_S2, STRCT_S3,",
+  "STAND_A1, STAND_A2, STAND_A3,",
+  "SITEMC_S1, SITEMC_S2, SITEMC_S3, BGC_VLD,",
+  "PLOT_NO, POLY_COM,",
+  "PROJ_ID, PROJ_TYPE, OBJECTID, TEIS_ID, PROJPOLYID, BAPID,",
+  "Shape_Area, shape",
+  "FROM TEI_Long_Tbl",
+  "WHERE",
+  " SITE_S1 = 'Ws04' OR",
+  " SITE_S2 = 'Ws04' OR",
+  " SITE_S3 = 'Ws04'"
+)
+
+Query.TEM.6605 <- paste(Query.TEM.6605, collapse = " ")
+
+TEM.6605 <- st_read(
+  dsn   = TEI_BAPID6605_path,
+  query = Query.TEM.6605,
+  quiet = TRUE
+)
+
+TEM.6605 <- TEM.6605 %>%
+  rename(BGC.Full = BGC_VLD)
+
+### Manually add BAPID 6473
+Query.TEM.6473 <- c(
   "SELECT",
   "SDEC_1, SDEC_2, SDEC_3,",
   "SITE_S1, SITE_S2, SITE_S3,",
@@ -227,31 +317,21 @@ Query.TEM.m <- c(
   "PLOT_NO, POLY_COM,",
   "PROJ_ID, PROJ_TYPE, OBJECTID, TEIS_ID, PROJPOLYID, BAPID,",
   "Shape_Area, shape",
-  "FROM TEIS_Master_Long_Tbl",
+  "FROM TEI_Long_Tbl_6473",
   "WHERE",
-  "PROJ_TYPE IN (",
-  "'ESA','EST','EXC','NEM','NEMNSS','NEMSEI','NEMWHR',",
-  "'PEM','PEMSDM','PEMTBT','PEMWHR',",
-  "'PREM','SEI','SEIWHR','STS',",
-  "'TEM','TEMNSS','TEMSDM','TEMSEI','TEMSET','TEMTSM','TEMWHR',",
-  "'VEG','WET'",
-  ")",
-  "AND",
-  "BAPID IN (1049, 1054, 4, 1048, 135, 1046, 216, 233, 244)",
-  "AND",
-  "BGC_ZONE LIKE 'SB%'"
-)
+  " SITEMC_S1 = 'Ws04' OR",
+  " SITEMC_S2 = 'Ws04' OR",
+  " SITEMC_S3 = 'Ws04'")
 
-Query.TEM.m <- paste(Query.TEM.m, collapse = " ")
+Query.TEM.6473 <- paste(Query.TEM.6473, collapse = " ")
 
-TEM.m.subset.full <- st_read(
-  dsn   = TEI.Path,
-  query = Query.TEM.m,
+TEM.6473 <- st_read(
+  dsn   = TEI_BAPID6473_path,
+  query = Query.TEM.6473,
   quiet = TRUE
 )
 
-# concatenate BGC
-TEM.m.subset <- TEM.m.subset.full %>%
+TEM.6473 <- TEM.6473 %>%
   unite(
     col = BGC.Full,  # New column name
     BGC_ZONE, BGC_SUBZON, BGC_VRT, BGC_PHASE, # Columns to combine
@@ -259,41 +339,15 @@ TEM.m.subset <- TEM.m.subset.full %>%
     na.rm = TRUE, #not insert NA for NULL values
     remove = FALSE
   )
-# I checked and map codes are not appearring in site code field.
-#quick initial filter
-fields <- c("SITEMC_S1","SITEMC_S2","SITEMC_S3")
-vals <- c("DS", "DW", "WS", "WD")
 
-TEM.m.subset <- TEM.m.subset %>%
-  filter(if_any(all_of(fields), ~ . %in% vals))
-# remove subzones that are not valid
-# second step in quick initial filter. Returns 865 rows.
-TEM.m.subset <- TEM.m.subset %>%
-  filter(BGC.Full %in% c("SBSmc2", "SBSmw", "SBSwk1", "SBSdw2", "SBPSmk", "SBPSxc", "SBSdk"))
-
-# Enforce exact conditions for each permissible value
-filter_condition <- 
-  (TEM.m.subset$BGC.Full == 'SBSdk' & TEM.m.subset$BAPID == 4 & (TEM.m.subset$SITEMC_S1 == 'WS' | TEM.m.subset$SITEMC_S2 == 'WS' | TEM.m.subset$SITEMC_S3 == 'WS')) |
-  (TEM.m.subset$BGC.Full == 'SBSmw' & TEM.m.subset$BAPID == 135 & (TEM.m.subset$SITEMC_S1 == 'WD' | TEM.m.subset$SITEMC_S2 == 'WD' | TEM.m.subset$SITEMC_S3 == 'WD')) |
-  (TEM.m.subset$BGC.Full == 'SBSdk' & TEM.m.subset$BAPID == 216 & (TEM.m.subset$SITEMC_S1 == 'WS' | TEM.m.subset$SITEMC_S2 == 'WS' | TEM.m.subset$SITEMC_S3 == 'WS')) |
-  (TEM.m.subset$BGC.Full == 'SBSmc2' & TEM.m.subset$BAPID == 216 & (TEM.m.subset$SITEMC_S1 == 'WS' | TEM.m.subset$SITEMC_S2 == 'WS' | TEM.m.subset$SITEMC_S3 == 'WS')) |
-  (TEM.m.subset$BGC.Full == 'SBSmw' & TEM.m.subset$BAPID == 233 & (TEM.m.subset$SITEMC_S1 == 'WD' | TEM.m.subset$SITEMC_S2 == 'WD' | TEM.m.subset$SITEMC_S3 == 'WD')) |
-  (TEM.m.subset$BGC.Full == 'SBSmw' & TEM.m.subset$BAPID == 244 & (TEM.m.subset$SITEMC_S1 == 'WD' | TEM.m.subset$SITEMC_S2 == 'WD' | TEM.m.subset$SITEMC_S3 == 'WD')) |
-  (TEM.m.subset$BGC.Full == 'SBSwk1' & TEM.m.subset$BAPID == 1046 & (TEM.m.subset$SITEMC_S1 == 'DS' | TEM.m.subset$SITEMC_S2 == 'DS' | TEM.m.subset$SITEMC_S3 == 'DS')) |
-  (TEM.m.subset$BGC.Full == 'SBSdw2' & TEM.m.subset$BAPID == 1048 & (TEM.m.subset$SITEMC_S1 == 'DS' | TEM.m.subset$SITEMC_S2 == 'DS' | TEM.m.subset$SITEMC_S3 == 'DS')) |
-  (TEM.m.subset$BGC.Full == 'SBPSmk' & TEM.m.subset$BAPID == 1049 & (TEM.m.subset$SITEMC_S1 == 'DS' | TEM.m.subset$SITEMC_S2 == 'DS' | TEM.m.subset$SITEMC_S3 == 'DS')) |
-  (TEM.m.subset$BGC.Full == 'SBPSxc' & TEM.m.subset$BAPID == 1054 & (TEM.m.subset$SITEMC_S1 == 'DS' | TEM.m.subset$SITEMC_S2 == 'DS' | TEM.m.subset$SITEMC_S3 == 'DS'))
-
-TEM.m.subset.filtered <- TEM.m.subset %>%
-  filter(!!filter_condition)
-### bind tem from site code queries with TEM from mapcode query
-TEM <- rbind(TEM.s.subset,TEM.m.subset.filtered)
-### remove bad records based on manual review
-### removed the following records where structual stage was not LIKE %3.  Manually reviewed these records with imagery. Most were not associated with a stream or had burned. There was also a decile error in one
-bad.teis <- c(23666961, 23667093, 25411952, 25412351, 25412356, 25412570, 25412598, 22905043, 23667543)
+# bind tem from site code queries with TEM from mapcode query
+TEM <- bind_rows(TEM.s.subset, TEM.m, TEM.6473, TEM.6605)
+# remove bad records based on manual review
+# remove records where structual stage is not LIKE %3.  Manually reviewed these records with imagery. Most were not associated with a stream or had burned. There was also a decile error in one
+bad.teis <- c(25412598, 23667093, 25412351, 25412570, 25411952, 25412356, 23666961, 23666961, 23667093, 25411952, 25412351, 25412356, 25412570, 25412598, 22905043, 23667543)
 TEM <- TEM %>% filter(!TEIS_ID %in% bad.teis)
 
-### add lat/long fields
+# add lat/long fields
 TEM <- TEM %>%
   # Calculate the centroid for each feature
   st_centroid() %>%
@@ -319,7 +373,7 @@ TEM <- TEM %>%
     )
   )
 ######################################################## AOO Sum from TEI #######################################################
-### Add AOO field to TEM to multiply deciles for focal site units
+### Add AOO field to TEM to multiply deciles for focal site units.
 TEM <- TEM %>%
   mutate(
     AOO = case_when(
@@ -327,13 +381,16 @@ TEM <- TEM %>%
       SITE_S1 == 'Ws04' ~ SDEC_1 * 0.1 * Shape_Area,
       SITE_S2 == 'Ws04' ~ SDEC_2 * 0.1 * Shape_Area,
       SITE_S3 == 'Ws04' ~ SDEC_3 * 0.1 * Shape_Area,
+      SITEMC_S1 == 'Ws04' ~ SDEC_1 * 0.1 * Shape_Area,
+      SITEMC_S2 == 'Ws04' ~ SDEC_2 * 0.1 * Shape_Area,
+      SITEMC_S3 == 'Ws04' ~ SDEC_3 * 0.1 * Shape_Area,
       
       #Conditions based on BGC.Full, BAPID, and SITEMC
       
       # SBSdk / WS (BAPID 4 and 216)
-      BGC.Full == 'SBSdk' & BAPID %in% c(4, 216) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
-      BGC.Full == 'SBSdk' & BAPID %in% c(4, 216) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
-      BGC.Full == 'SBSdk' & BAPID %in% c(4, 216) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      BGC.Full == 'SBSdk' & BAPID %in% c(4, 209, 216) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'SBSdk' & BAPID %in% c(4, 209, 216) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'SBSdk' & BAPID %in% c(4, 209, 216) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
       
       # SBSmw / WD (BAPID 135, 233, 244)
       BGC.Full == 'SBSmw' & BAPID %in% c(135, 233, 244) & SITEMC_S1 == 'WD' ~ SDEC_1 * 0.1 * Shape_Area,
@@ -365,6 +422,40 @@ TEM <- TEM %>%
       BGC.Full == 'SBPSxc' & BAPID == 1054 & SITEMC_S2 == 'DS' ~ SDEC_2 * 0.1 * Shape_Area,
       BGC.Full == 'SBPSxc' & BAPID == 1054 & SITEMC_S3 == 'DS' ~ SDEC_3 * 0.1 * Shape_Area,
       
+      # ESSFdc2 / WS (BAPID 108)
+      BGC.Full == 'ESSFdc2' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'ESSFdc2' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'ESSFdc2' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      
+      # ESSFxc / WS (BAPID 108)
+      BGC.Full == 'ESSFxc' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'ESSFxc' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'ESSFxc' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      
+      # IDFdk2 / WS (BAPID 108)
+      BGC.Full == 'IDFdk2' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'IDFdk2' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'IDFdk2' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      
+      # IDFdm1 / WS (BAPID 239, 1055)
+      BGC.Full == 'IDFdm1' & BAPID %in% c(239, 1055) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'IDFdm1' & BAPID %in% c(239, 1055) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'IDFdm1' & BAPID %in% c(239, 1055) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      
+      # MSdm1 / WS (BAPID 239, 1055)
+      BGC.Full == 'MSdm1' & BAPID %in% c(239, 1055) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'MSdm1' & BAPID %in% c(239, 1055) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'MSdm1' & BAPID %in% c(239, 1055) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      
+      # MSxk / WS (BAPID 108)
+      BGC.Full == 'MSxk' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'MSxk' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'MSxk' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      
+      # MSdm2 / WS (BAPID 108)
+      BGC.Full == 'MSdm2' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'MSdm2' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'MSdm2' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
       # Default case
       TRUE ~ 0.0 
     )
@@ -376,7 +467,7 @@ TEM <-TEM %>%
 # Sum AOO Max
 AOO.Obs.Max.km2 <- sum(as.numeric(TEM$AOO),na.rm = TRUE)/1e6
 # Sum AOO Min based on removal of BWBS. See comments under Range Extent
-AOO.Obs.Min.km2 <- sum(as.numeric(TEM$AOO[TEM$BGC_ZONE != 'BWBS']),na.rm = TRUE) / 1e6
+AOO.Obs.Min.km2 <- sum(as.numeric(TEM$AOO[TEM$BGC_ZONE != 'BWBS' & TEM$BGC_ZONE != 'SBSwk2']), na.rm = TRUE) / 1e6
 
 AOO.Obs.Min.km2 <- setNames(AOO.Obs.Min.km2, "AOO.Obs.Min.km2")
 AOO.Obs.Max.km2 <- setNames(AOO.Obs.Max.km2, "AOO.Obs.Max.km2")
@@ -511,7 +602,8 @@ st_write(NOO.Groups.Max, out.gpkg, layer = "NOO.Max")
 st_write(NOO.Groups.Min, out.gpkg, layer = "NOO.Min")
 # Write selected project boundaries and write ALL project boundaries (for ease of review)
 st_write(TEI.proj.bound.all, out.gpkg, layer = "TEI.proj.bound.all")
-st_write(TEI.proj.bound.selected, out.gpkg, layer = "TEI.proj.bound.selected")
+st_write(TEI.proj.bound.min, out.gpkg, layer = "TEI.proj.bound.min")
+st_write(TEI.proj.bound.max, out.gpkg, layer = "TEI.proj.bound.max")
 
 ############################################################### WRITE TABLES ####################################################
 data.xlsx <- createWorkbook()
@@ -720,4 +812,16 @@ result <- data.frame(
   value = check_vals,
   in_combined = ifelse(check_vals %in% combined_bapid, "yes", "no"),
   stringsAsFactors = FALSE
+)
+
+### Examine BAPIDS from LONG TABLE
+# Unique values only (attribute-only query)
+u <- st_read(TEI.Path, query = sprintf('SELECT DISTINCT "%s" FROM "%s"', "BAPID", "TEIS_Master_Long_Tbl"), quiet = TRUE)
+overlapping.BAPIDS <- unique(TEI.proj.bound.all$BUSINESS_AREA_PROJECT_ID)
+
+Missing.Projects <- setdiff(overlapping.BAPIDS, u$BAPID)
+
+TEI.proj.bound.all$missing_bapid <- ifelse(
+  TEI.proj.bound.all$BUSINESS_AREA_PROJECT_ID %in% Missing.Projects,
+  "yes", "no"
 )

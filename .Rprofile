@@ -26,6 +26,8 @@ TEM3.path                     <- get_env_path("TEM3_PATH")
 
 TEI.Path                      <- get_env_path("TEI_PATH")
 TEI.proj.bound.path           <- get_env_path("TEI_PROJ_BOUND_PATH")
+TEI_BAPID6473_path            <- get_env_path("TEI_BAPID6473_path")
+TEI_BAPID6605_path            <- get_env_path("TEI_BAPID6605_path")
 
 CEF.Human.Disturbance.path    <- get_env_path("CEF_HUMAN_DISTURBANCE_PATH")
 My.CEF.Human.Disturbance.path <- get_env_path("MY_CEF_HUMAN_DISTURBANCE_PATH")
