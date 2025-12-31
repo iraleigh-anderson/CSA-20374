@@ -341,7 +341,7 @@ TEM.6473 <- TEM.6473 %>%
   )
 
 # bind tem from site code queries with TEM from mapcode query
-TEM <- bind_rows(TEM.s.subset, TEM.m, TEM.6473, TEM.6605)
+TEM <- bind_rows(TEM.s, TEM.m, TEM.6473, TEM.6605)
 # remove bad records based on manual review
 # remove records where structual stage is not LIKE %3.  Manually reviewed these records with imagery. Most were not associated with a stream or had burned. There was also a decile error in one
 bad.teis <- c(25412598, 23667093, 25412351, 25412570, 25411952, 25412356, 23666961, 23666961, 23667093, 25411952, 25412351, 25412356, 25412570, 25412598, 22905043, 23667543)
@@ -488,7 +488,7 @@ AOO.Est.Max <- setNames((BGC.Range.Max.km2*0.0102),"AOO.Est.Max.km2")
 sep.dist.m <- 1000 #m
 min.occ.size.km2 <- 0.0005 # 2 ha
 ### minimum NOO estimate while excluding TEM from the BWBS. See comments in Range extent. ###
-valid.occurrences.min <- TEM %>% filter(BGC_ZONE != "BWBS" | is.na(BGC_ZONE))
+valid.occurrences.min <- TEM %>% filter(TEM$BGC_ZONE != 'BWBS' & TEM$BGC_ZONE != 'SBSwk2')
 # Filter polygons for min size
 min_occ <- valid.occurrences.min[valid.occurrences.min$AOO.km2 >= min.occ.size.km2, ]
 # remove empty records
@@ -569,6 +569,13 @@ occ_buf$GroupID <- group_id
 NOO.Groups.Max <- aggregate(occ_buf, by = "GroupID", dissolve = TRUE)
 # convert back to sf
 NOO.Groups.Max <- st_as_sf(NOO.Groups.Max)
+
+# Attach Group IDs to TEM
+TEM <- TEM %>%
+  st_join(NOO.Groups.Min %>% select(GroupID_Min = GroupID))
+TEM <- TEM %>%
+  st_join(NOO.Groups.Max %>% select(GroupID_Max = GroupID))
+
 #### Count NOO
 NOO.Min.Count <- setNames(nrow(NOO.Groups.Min), "NOO.Min.Count")
 NOO.Max.Count <- setNames(nrow(NOO.Groups.Max), "NOO.Max.Count")
@@ -582,9 +589,16 @@ Impacts <- st_join(
   join = st_intersects,
   left = TRUE
 )
+impact.summary <- Impacts %>%
+  group_by(CEF_DISTURB_GROUP) %>%
+  summarize(
+    unique_teis_count = n_distinct(TEIS_ID, na.rm = FALSE)
+  )%>%
+  mutate(
+    percent = (unique_teis_count / nrow(TEM)) * 100
+  )
 
-st_write(Impacts, "TEM_joined_full.gpkg", layer = "TEM_join_full", delete_dsn = TRUE)
-#################################################### WRITE SPATIAL #################################################################
+ #################################################### WRITE SPATIAL #################################################################
 # define output path
 out.gpkg <- file.path(getwd(), "outputs", paste0(El.Sub.ID, "-csa-", format(Sys.time(), "%Y%m%d_%H%M"), ".gpkg"))
 
@@ -592,12 +606,12 @@ out.gpkg <- file.path(getwd(), "outputs", paste0(El.Sub.ID, "-csa-", format(Sys.
 st_write(BEC.Master.Focal.sf.buffer, out.gpkg, layer = "BECMaster")
 #write TEM
 st_write(TEM, out.gpkg, layer = "TEM")
-# Write Range GPKG
+# Write Range
 st_write(BGC.MCP.Max, out.gpkg, layer = "BGC.MCP.Max")
 st_write(BGC.Range.Min, out.gpkg, layer ="BGC.Range.Min")
 st_write(BGC.Range.Max, out.gpkg, layer ="BGC.Range.max")
 st_write(BGC.MCP.Min, out.gpkg, layer = "BGC.MCP.Min")
-# Write NOO GPKG
+# Write NOO
 st_write(NOO.Groups.Max, out.gpkg, layer = "NOO.Max")
 st_write(NOO.Groups.Min, out.gpkg, layer = "NOO.Min")
 # Write selected project boundaries and write ALL project boundaries (for ease of review)
@@ -623,6 +637,16 @@ writeDataTable(data.xlsx, sheet = "BEC.Master.Focal", x = BEC.Master.Focal,
 TEM.df <- st_drop_geometry(TEM)
 addWorksheet(data.xlsx, "TEM")
 writeDataTable(data.xlsx, sheet = "TEM", x = TEM.df, 
+               startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
+### Impacts Data
+Impacts.df <- st_drop_geometry(Impacts)
+addWorksheet(data.xlsx, "Impacts")
+writeDataTable(data.xlsx, sheet = "Impacts", x = Impacts.df, 
+               startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
+### Impacts Summary
+impact.summary.df <- st_drop_geometry(impact.summary)
+addWorksheet(data.xlsx, "Impact Summary")
+writeDataTable(data.xlsx, sheet = "Impact Summary", x = impact.summary, 
                startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
 
 ### Geographic Summary
