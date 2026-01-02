@@ -21,16 +21,16 @@ BGC.Units.Min <- c("ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc2", "ICHdw4
 # minimal evidence supports occurrence of Ws04 in the BWBS. LMH 52 does not list Ws04 in the BWBS or SWB.  LMH68 does not list Ws04 or related Fl05 in any BWBS.  BWBSmw and wk1 seem to be at the NE margin of S. drummondiana and Spiraea douglasii range. Two plots support the occurrence of the Ws04 in the SBSdh1 (Kyla Rushton personal communication)
 BGC.Units.Max <- c("BWBSwk1", "BWBSmw", "ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1", "SBSwk2")
 
-BGC.Range.Min <- BEC13 %>% filter(BEC13$MAP_LABEL %in% BGC.Units.Min)
-BGC.Range.Max <- BEC13 %>% filter(BEC13$MAP_LABEL %in% BGC.Units.Max)
+BGC.Range.Min <- BEC13 %>% filter(MAP_LABEL %in% BGC.Units.Min)
+BGC.Range.Max <- BEC13 %>% filter(MAP_LABEL %in% BGC.Units.Max)
 #MCP around selected BGC.Units
 BGC.MCP.Min <- st_convex_hull(st_union(BGC.Range.Min))
 BGC.MCP.Max <- st_convex_hull(st_union(BGC.Range.Max))
 #area calculations
-BGC.MCP.Min.area.km2 <- setNames(as.numeric(st_area(BGC.MCP.Min)) / 1e6, "BGC.MCP.Min.area.km2")
-BGC.MCP.Max.area.km2 <- setNames(as.numeric(st_area(BGC.MCP.Max)) / 1e6, "BGC.MCP..Max.area.km2")
-BGC.Range.Min.km2 <- setNames(sum(BGC.Range.Min$Shape_Area, na.rm = TRUE)/ 1e6, "BGC.Range.Min.km2")
-BGC.Range.Max.km2 <- setNames(sum(BGC.Range.Max$Shape_Area, na.rm = TRUE)/ 1e6, "BGC.Range.Max.km2")
+BGC.MCP.Min.area.km2 <- as.numeric(st_area(BGC.MCP.Min)) / 1e6
+BGC.MCP.Max.area.km2 <- as.numeric(st_area(BGC.MCP.Max)) / 1e6
+BGC.Range.Min.km2 <- sum(BGC.Range.Min$Shape_Area, na.rm = TRUE)/ 1e6
+BGC.Range.Max.km2 <- sum(BGC.Range.Max$Shape_Area, na.rm = TRUE)/ 1e6
 ################################################## PROJECT BOUNDARIES - Ecosystem Mapping ##########
 ### Create SF of ALL Ecosystem Mapping Project Boundaries that overlap the widest possible BGC Range
 TEI.proj.bound.all <- st_read(
@@ -67,8 +67,8 @@ overlap_sf <- st_union(overlap_sf)
 # Calculate area in m²
 overlap_sf$overlap_area_m2 <- st_area(overlap_sf)
 # Calculate area of BGC range that is overlapped by selected project boundaries
-BGC.Range.Mapped.Max.km2 <- setNames(as.numeric(sum(overlap_sf$overlap_area_m2)/ 1e6),"BGC.Range.Mapped.Max.km2")
-BGC.Range.Mapped.Max.Percent <- setNames(as.numeric(BGC.Range.Mapped.Max.km2/BGC.Range.Max.km2)*100,"BGC.Range.Mapped.Max.Percent")
+BGC.Range.Mapped.Max.km2 <- as.numeric(sum(overlap_sf$overlap_area_m2)/ 1e6)
+BGC.Range.Mapped.Max.Percent <- as.numeric(BGC.Range.Mapped.Max.km2/BGC.Range.Max.km2)*100
 ###Minimum TEI Project Boundary Overlap Estimate
 # Create SF of selected projects
 #TEI.proj.bound.selected <- st_read(dsn   = TEI.proj.bound.path,query = " SELECT * FROM WHSE_TERRESTRIAL_ECOLOGY_STE_TEI_PROJECT_BOUNDARIES_SP WHERE BUSINESS_AREA_PROJECT_ID IN (4, 135, 216, 233, 244, 1046, 1048, 1049, 1054, 4523, 4917, 6468, 6536, 6624)")
@@ -86,8 +86,8 @@ overlap_sf <- st_union(overlap_sf)
 # Calculate area in m²
 overlap_sf$overlap_area_m2 <- st_area(overlap_sf)
 # Calculate area of BGC range that is overlapped by selected project boundaries
-BGC.Range.Mapped.Min.km2 <- setNames(as.numeric(sum(overlap_sf$overlap_area_m2)/ 1e6),"BGC.Range.Mapped.Min.km2")
-BGC.Range.Mapped.Min.Percent <- setNames(as.numeric(BGC.Range.Mapped.Min.km2/BGC.Range.Min.km2)*100,"Percent.BGC.Range.Mapped.Min")
+BGC.Range.Mapped.Min.km2 <- as.numeric(sum(overlap_sf$overlap_area_m2)/ 1e6)
+BGC.Range.Mapped.Min.Percent <- as.numeric(BGC.Range.Mapped.Min.km2/BGC.Range.Min.km2)*100
 
 ################################################  BECMASTER - QUERY AND CLEAN ##################################################
 # Connect to BECMaster
@@ -344,25 +344,19 @@ TEM.6473 <- TEM.6473 %>%
 TEM <- bind_rows(TEM.s, TEM.m, TEM.6473, TEM.6605)
 # remove bad records based on manual review
 # remove records where structual stage is not LIKE %3.  Manually reviewed these records with imagery. Most were not associated with a stream or had burned. There was also a decile error in one
-bad.teis <- c(25412598, 23667093, 25412351, 25412570, 25411952, 25412356, 23666961, 23666961, 23667093, 25411952, 25412351, 25412356, 25412570, 25412598, 22905043, 23667543)
+bad.teis <- c(22905043, 23666961, 23667093, 23667543, 25411952, 25412351, 25412356, 25412570, 25412598)
 TEM <- TEM %>% filter(!TEIS_ID %in% bad.teis)
 
 # add lat/long fields
 TEM <- TEM %>%
-  # Calculate the centroid for each feature
-  st_centroid() %>%
-  # Extract the coordinates from the centroid geometry
-  st_coordinates() %>%
-  # Convert the coordinate matrix (X, Y) to a data frame and bind it to TEM
-  as.data.frame() %>%
-  bind_cols(TEM, .) %>%
-  # Rename the default 'X' and 'Y' columns
-  mutate(
-    Longitude = X, # The X coordinate is usually Longitude
-    Latitude  = Y  # The Y coordinate is usually Latitude
-  ) %>%
-  # drop the temporary X and Y
-  select(-X, -Y)
+  bind_cols(
+    TEM %>% 
+      st_centroid() %>% # get centroid
+      st_transform(4326) %>%  # change Alberts to geogrpahic 
+      st_coordinates() %>% # extract coordinates
+      as.data.frame() %>% # add columns
+      rename(Latitude = Y, Longitude = X)
+  )
 ### Fill in missing BGC based on manual review
 TEM <- TEM %>%
   mutate(
@@ -466,12 +460,8 @@ TEM <-TEM %>%
 
 # Sum AOO Max
 AOO.Obs.Max.km2 <- sum(as.numeric(TEM$AOO),na.rm = TRUE)/1e6
-# Sum AOO Min based on removal of BWBS. See comments under Range Extent
+# Sum AOO Min based on removal of BWBS and SBSwk2. See comments under Range Extent
 AOO.Obs.Min.km2 <- sum(as.numeric(TEM$AOO[TEM$BGC_ZONE != 'BWBS' & TEM$BGC_ZONE != 'SBSwk2']), na.rm = TRUE) / 1e6
-
-AOO.Obs.Min.km2 <- setNames(AOO.Obs.Min.km2, "AOO.Obs.Min.km2")
-AOO.Obs.Max.km2 <- setNames(AOO.Obs.Max.km2, "AOO.Obs.Max.km2")
-#
 
 ### Determination of spatial pattern = "Small Patch"
 Patch.Size.Avg.ha <- mean(TEM$AOO, na.rm = TRUE) / 1e4 # 5 h
@@ -480,8 +470,8 @@ Patch.Size.Max.ha <- max(TEM$AOO, na.rm = TRUE) / 1e4 # 181 ha
 ################################################  AOO Estimate and Inference ################################################
 ## Five TEM Projects (BAPID numbers: 4, 216, 4523, 4917, 6536,6605) recorded occupancy rates for this ecological community across five BGC units (ESSFdc2, IDFdk2, SBSdk, SBSmc2, SBSmk1). The rate of occupancy ranged from 0.03% to 1.02%.   THese rates of occupancy are multiplied by the min and max BGC range estimates to calculate an estimated area of occupancy below.
 # BGC.Range.Mapped.Percent and BGC.Range.Mapped.km2 are defined above
-AOO.Est.Min <- setNames((BGC.Range.Min.km2*0.0003),"AOO.Est.Min.km2")
-AOO.Est.Max <- setNames((BGC.Range.Max.km2*0.0102),"AOO.Est.Max.km2")
+AOO.Est.Min.km2 <- (BGC.Range.Min.km2*0.0003)
+AOO.Est.Max.km2 <- (BGC.Range.Max.km2*0.0102)
 #
 #####################################################  NOO  #################################################
 # Parameters
@@ -524,9 +514,9 @@ for (i in seq_len(n)) {
 # Attach group IDs to buffers
 occ_buf$GroupID <- group_id
 # Dissolve buffers by GroupID
-NOO.Groups.Min <- aggregate(occ_buf, by = "GroupID", dissolve = TRUE)
+NOO.Count.Min <- aggregate(occ_buf, by = "GroupID", dissolve = TRUE)
 # convert back to sf
-NOO.Groups.Min <- st_as_sf(NOO.Groups.Min)
+NOO.Count.Min <- st_as_sf(NOO.Count.Min)
 ### maximum NOO estimate including the BWBS. See comments in Range extent. ###
 valid.occurrences.max <- TEM
 
@@ -566,20 +556,20 @@ for (i in seq_len(n)) {
 # Attach group IDs to buffers
 occ_buf$GroupID <- group_id
 # Dissolve buffers by GroupID
-NOO.Groups.Max <- aggregate(occ_buf, by = "GroupID", dissolve = TRUE)
+NOO.Count.Max <- aggregate(occ_buf, by = "GroupID", dissolve = TRUE)
 # convert back to sf
-NOO.Groups.Max <- st_as_sf(NOO.Groups.Max)
+NOO.Count.Max <- st_as_sf(NOO.Count.Max)
 
 # Attach Group IDs to TEM
 TEM <- TEM %>%
-  st_join(NOO.Groups.Min %>% select(GroupID_Min = GroupID))
+  st_join(NOO.Count.Min %>% select(GroupID_Min = GroupID))
 TEM <- TEM %>%
-  st_join(NOO.Groups.Max %>% select(GroupID_Max = GroupID))
+  st_join(NOO.Count.Max %>% select(GroupID_Max = GroupID))
 
 #### Count NOO
-NOO.Min.Count <- setNames(nrow(NOO.Groups.Min), "NOO.Min.Count")
-NOO.Max.Count <- setNames(nrow(NOO.Groups.Max), "NOO.Max.Count")
-#####################################################  TRENDS  #################################################
+NOO.Min.Count <- nrow(NOO.Count.Min)
+NOO.Max.Count <- nrow(NOO.Count.Max)
+#####################################################  IMPACTS #################################################
 Human.Disturbance <- st_read(My.CEF.Human.Disturbance.path, "BC_CEF_HUMAN_DISTURBANCE_2023_fixed")
 
 # Join (left join keeps all TEM rows).attaches all HD columns to TEM where they intersect.
@@ -598,7 +588,7 @@ impact.summary <- Impacts %>%
     percent = (unique_teis_count / nrow(TEM)) * 100
   )
 
- #################################################### WRITE SPATIAL #################################################################
+#################################################### WRITE SPATIAL #################################################################
 # define output path
 out.gpkg <- file.path(getwd(), "outputs", paste0(El.Sub.ID, "-csa-", format(Sys.time(), "%Y%m%d_%H%M"), ".gpkg"))
 
@@ -607,13 +597,13 @@ st_write(BEC.Master.Focal.sf.buffer, out.gpkg, layer = "BECMaster")
 #write TEM
 st_write(TEM, out.gpkg, layer = "TEM")
 # Write Range
-st_write(BGC.MCP.Max, out.gpkg, layer = "BGC.MCP.Max")
 st_write(BGC.Range.Min, out.gpkg, layer ="BGC.Range.Min")
 st_write(BGC.Range.Max, out.gpkg, layer ="BGC.Range.max")
 st_write(BGC.MCP.Min, out.gpkg, layer = "BGC.MCP.Min")
+st_write(BGC.MCP.Max, out.gpkg, layer = "BGC.MCP.Max")
 # Write NOO
-st_write(NOO.Groups.Max, out.gpkg, layer = "NOO.Max")
-st_write(NOO.Groups.Min, out.gpkg, layer = "NOO.Min")
+st_write(NOO.Count.Max, out.gpkg, layer = "NOO.Max")
+st_write(NOO.Count.Min, out.gpkg, layer = "NOO.Min")
 # Write selected project boundaries and write ALL project boundaries (for ease of review)
 st_write(TEI.proj.bound.all, out.gpkg, layer = "TEI.proj.bound.all")
 st_write(TEI.proj.bound.min, out.gpkg, layer = "TEI.proj.bound.min")
@@ -621,18 +611,16 @@ st_write(TEI.proj.bound.max, out.gpkg, layer = "TEI.proj.bound.max")
 
 ############################################################### WRITE TABLES ####################################################
 data.xlsx <- createWorkbook()
-
+### WRITE DATA ###
+### BEC Master Data 
+addWorksheet(data.xlsx, "BEC.Master.Focal")
+writeDataTable(data.xlsx, sheet = "BEC.Master.Focal", x = BEC.Master.Focal, 
+               startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
 ### Project Boundaries Data 
 TEI.df <- st_drop_geometry(TEI.proj.bound.all)
 addWorksheet(data.xlsx, "TEI Projects")
 writeDataTable(data.xlsx, sheet = "TEI Projects", x = TEI.df, 
                startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
-
-### BEC Master Data 
-addWorksheet(data.xlsx, "BEC.Master.Focal")
-writeDataTable(data.xlsx, sheet = "BEC.Master.Focal", x = BEC.Master.Focal, 
-               startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
-
 ### TEM Data 
 TEM.df <- st_drop_geometry(TEM)
 addWorksheet(data.xlsx, "TEM")
@@ -643,13 +631,12 @@ Impacts.df <- st_drop_geometry(Impacts)
 addWorksheet(data.xlsx, "Impacts")
 writeDataTable(data.xlsx, sheet = "Impacts", x = Impacts.df, 
                startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
-### Impacts Summary
-impact.summary.df <- st_drop_geometry(impact.summary)
-addWorksheet(data.xlsx, "Impact Summary")
-writeDataTable(data.xlsx, sheet = "Impact Summary", x = impact.summary, 
-               startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
-
-### Geographic Summary
+# expand column widths
+setColWidths(data.xlsx, sheet = "BEC.Master.Focal", cols = 1:50, widths = "auto")
+setColWidths(data.xlsx, sheet = "TEI Projects", cols = 1:50, widths = "auto")
+setColWidths(data.xlsx, sheet = "TEM", cols = 1:50, widths = "auto")
+setColWidths(data.xlsx, sheet = "Impacts", cols = 1:50, widths = "auto")
+### Geographic Data
 #BEC Master formatting
 # add fields
 BEC.Geographic.Summary <- BEC.Master.Focal %>%
@@ -705,55 +692,83 @@ writeDataTable(
   startRow   = 1,
   tableStyle = "TableStyleLight8"
 )
-
-
-### Save workbook 
-saveWorkbook(
-  data.xlsx,
-  file.path(getwd(), "outputs", paste0(El.Sub.ID, "-data-csa-", format(Sys.time(), "%Y%m%d_%H%M"), ".xlsx")),
-  overwrite = TRUE
-)
-############################################################### WRITE SUMMARY ########################################################
-summary.xlsx <- createWorkbook()
-
+### Write Summaries ###
 #write Range summary stats
-addWorksheet(summary.xlsx, "Range")
-writeData(summary.xlsx, "Range", as.data.frame(t(BGC.MCP.area.km2)), startRow = 1)
-writeData(summary.xlsx, "Range", as.data.frame(t(BGC.Range.km2)), startRow = 3)
-writeData(summary.xlsx, "Range", as.data.frame(t(BGC.Range.Mapped.km2)), startRow = 5)
-writeData(summary.xlsx, "Range", as.data.frame(t()), startRow = 7)
-
+addWorksheet(data.xlsx, "Range")
+range_summary <- data.frame(
+  Metric = c(
+    "BGC MCP Area Min (km2)",
+    "BGC MCP Area Max (km2)",
+    "BGC Mapped Area Min (km2)",
+    "BGC Mapped Area Min (percent)",
+    "BGC Mapped Area Max (km2)",
+    "BGC Mapped Area Max (%)",
+    "BGC Range Min (km2)",
+    "BGC Range Max (km2)"
+  ),
+  Value = round(c(
+    BGC.MCP.Min.area.km2,
+    BGC.MCP.Max.area.km2,
+    BGC.Range.Mapped.Min.km2,
+    BGC.Range.Mapped.Min.Percent,
+    BGC.Range.Mapped.Max.km2,
+    BGC.Range.Mapped.Max.Percent,
+    BGC.Range.Min.km2,
+    BGC.Range.Max.km2
+  ),1))
+writeData(data.xlsx, "Range", range_summary, startRow = 1)
 #write AOO summary stats
-addWorksheet(summary.xlsx, "AOO")
-writeData(summary.xlsx, "AOO", as.data.frame(t(AOO.Obs.Min)),startRow = 1)
-writeData(summary.xlsx, "AOO", as.data.frame(t(AOO.Obs.Max)),startRow = 3)
-writeData(summary.xlsx, "AOO", as.data.frame(t(AOO.Est.Min)),startRow = 5)
-writeData(summary.xlsx, "AOO", as.data.frame(t(AOO.Est.Max)),startRow = 7)
-writeData(summary.xlsx, "AOO", as.data.frame(t(AOO.Inf.Min)),startRow = 9)
-writeData(summary.xlsx, "AOO", as.data.frame(t(AOO.Inf.Max)),startRow = 11)
-
+addWorksheet(data.xlsx, "AOO")
+aoo_summary <- data.frame(
+  Metric = c(
+    "Observed AOO Min (km2)",
+    "Observed AOO Max (km2)",
+    "Estimated AOO Min (km2)",
+    "Estimated AOO Max (km2)",
+    "Average Patch Size (ha)",
+    "Maximum Patch Size (ha)",
+    "Median Patch Size (ha)"
+  ),
+  Value = round(c(
+    AOO.Obs.Min.km2,
+    AOO.Obs.Max.km2,
+    AOO.Est.Min.km2,
+    AOO.Est.Max.km2,
+    Patch.Size.Avg.ha,
+    Patch.Size.Max.ha,
+    Patch.Size.Med.ha
+  ),1))
+writeData(data.xlsx, "AOO", aoo_summary, startRow = 1)
 #write NOO summary stats
-addWorksheet(summary.xlsx, "NOO")
-writeData(summary.xlsx, "NOO", as.data.frame(t(NOO.Min.Count)),startRow = 1)
-writeData(summary.xlsx, "NOO", as.data.frame(t(NOO.Max.Count)),startRow = 3)
+addWorksheet(data.xlsx, "NOO")
+noo_summary <- data.frame(
+  Parameter = c("NOO Minimum Count", 
+                "NOO Maximum Count", 
+                "Minimum Occurrence Size (km2)", 
+                "Separation Distance (m)"),
+  Value = round(c(NOO.Min.Count, 
+            NOO.Max.Count, 
+            min.occ.size.km2, 
+            sep.dist.m),1))
+writeData(data.xlsx, "NOO", noo_summary, startRow = 1)
+#Impacts Summary
+impact.summary.df <- st_drop_geometry(impact.summary) %>%
+  mutate(percent = round(percent, 1))
+addWorksheet(data.xlsx, "Impact Summary")
+writeData(data.xlsx, sheet = "Impact Summary", x = impact.summary.df)
 
-#write CEF summary stats
-addWorksheet(summary.xlsx, "CEF")
-writeData(summary.xlsx, "CEF", CEF.Seral.Stage.Sums, startRow = 1)
+# expand column widths
+setColWidths(data.xlsx, sheet = "Range", cols = 1:2, widths = "auto")
+setColWidths(data.xlsx, sheet = "AOO", cols = 1:2, widths = "auto")
+setColWidths(data.xlsx, sheet = "NOO", cols = 1:2, widths = "auto")
+setColWidths(data.xlsx, sheet = "Impact Summary", cols = 1:2, widths = "auto")
 
-#auto expand column widths
-setColWidths(summary.xlsx, sheet = "Range", cols = 1:50, widths = "auto")
-setColWidths(summary.xlsx, sheet = "AOO", cols = 1:50, widths = "auto")
-setColWidths(summary.xlsx, sheet = "NOO", cols = 1:50, widths = "auto")
-setColWidths(summary.xlsx, sheet = "CEF", cols = 1:50, widths = "auto")
-
-#workbook is saved at the end of the next section
 
 ######################################################## FACTOR COMMENTS #######################################################
 # assign text variables
-Comments.Range.Extent <- glue("The total area of biogeoclimatic range of this ecological community is {round(BGC.Range.km2,2)} km2, and was calculated based on the sum of the area within the BWBSwk1, BWBSwk2, BWBSwk3 subzone variant polygons in BEC version 13 (citation).The estimated range extent is {round(BGC.MCP.area.km2,2)} km2, and was calculated based on the sum of the area of a minimum convex polygon plotted around the outer margins of the BWBSwk1, BWBSwk2, BWBSwk3 subzone variant polygons.")
-Comments.AOO <- glue("The inferred Area of Occupancy for this ecological community is between {round(AOO.Inf.Min,2)} km2 and {round(AOO.Inf.Max,2)} km2. The AOO was first estimated by summing the proportion of area mapped as the focal ecological community in Terrestrial Ecosystem Information across the entire biogeoclimatic range of the focal ecological community. The minimum proportion of cover area was based on the sum of Terrestrial Ecosystem Information polygons mapped as in mature or old structural stages, and the maximum proportion was estimated based on the sum of these mature/old areas and additional polygons with no structural stage attribution (though still excluding polygons attributed to younger structural stages). The AOO was inferred by adjusting the estimates based on assumed rates of misattribution in Terrestrial Ecosystem Information Mapping. The minimum AOO inference was calculated by reducing the minimum estimate by 35% based on the assumption that up to 35% of the mapped area of focal site series are false positives. The maximum AOO inference was calculated by adjusting maximum AOO estimate based on the assumption that up to 35% of the area within the mapped biogeoclimatic range of this ecological community mapped as site series other than the focal sites series were incorrectly mapped and that up to 5% of this area is instead occupied by the focal ecological community")
-Comments.NOO <- glue("There are between {NOO.Min.Count} and {NOO.Max.Count} occurrences of this ecological community. The minimum estimated number of occurrences were counted based on mapped focal sites series in Terrestrial Ecosystem Information polygons where structural stage is Mature or Old. The maximum estimated number of occurrences were counted based on mapped focal sites series in Terrestrial Ecosystem Information polygons where structural stage is Mature or Old and additional polygons where structural stage is Null (though still excluding polygons attributed to younger structural stages).  The separation distance between occurrences was {sep.dist.m} metres and the minimum occurrence size was {min.occ.size.km2} km2")
+Comments.Range.Extent <- glue("Test")
+Comments.AOO <- glue("Test")
+Comments.NOO <- glue("Test")
 Comments.NOOGEI <- glue("")
 Comments.AOOGEI <- glue("")
 Comments.Env.Spe <- glue("")
@@ -778,7 +793,7 @@ factor.comments <- c(
 )
 factor.comments.rows <- c(1,3,6,9,10,11,12,13,14,15,16)
 
-addWorksheet(summary.xlsx, "Factor.Comments")
+addWorksheet(data.xlsx, "Factor.Comments")
 
 # Write variable names and values to specific rows to allow single paste into the rank calculator
 for (i in seq_along(factor.comments)) {
@@ -786,19 +801,21 @@ for (i in seq_along(factor.comments)) {
   var_value <- get(var_name, envir = .GlobalEnv)
   row_num <- factor.comments.rows[i]
   
-  writeData(summary.xlsx, sheet = "Factor.Comments", x = var_name,  startCol = 1, startRow = row_num)
-  writeData(summary.xlsx, sheet = "Factor.Comments", x = var_value, startCol = 2, startRow = row_num)
+  writeData(data.xlsx, sheet = "Factor.Comments", x = var_name,  startCol = 1, startRow = row_num)
+  writeData(data.xlsx, sheet = "Factor.Comments", x = var_value, startCol = 2, startRow = row_num)
 }
 #auto expand column widths and apply text wrapping
 wrapStyle <- createStyle(wrapText = TRUE)
-addStyle(summary.xlsx, sheet = "Factor.Comments", style = wrapStyle, rows = 1:100, cols = 2:2, gridExpand = TRUE)
-setColWidths(summary.xlsx, sheet = "Factor.Comments", cols = 1:50, widths = "auto")
-# Save workbook
+addStyle(data.xlsx, sheet = "Factor.Comments", style = wrapStyle, rows = 1:100, cols = 2:2, gridExpand = TRUE)
+setColWidths(data.xlsx, sheet = "Factor.Comments", cols = 1:50, widths = "auto")
+
+### Save workbook ###
 saveWorkbook(
-  summary.xlsx,
+  data.xlsx,
   file.path(getwd(), "outputs", paste0(El.Sub.ID, "-data-csa-", format(Sys.time(), "%Y%m%d_%H%M"), ".xlsx")),
   overwrite = TRUE
 )
+
 #################################### UTILITIES #####################################################################
 ### Compare vetted BECMaster points with BGC units for Range Extent
 # Keep only vetted plots
