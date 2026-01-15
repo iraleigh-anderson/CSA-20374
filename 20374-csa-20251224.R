@@ -13,22 +13,22 @@ library(DBI)
 library(odbc)
 library(glue)
 library(lwgeom)
-##################################################  RANGE EXTENT ###############################################################
+##################################################  RANGE EXTENT INFERRED ###############################################################
 #select layer
 BEC13<- st_read(dsn = BEC13.path, layer = "BEC13_v2")
 #Queries for Range extent
-BGC.Units.Min <- c("ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1")
+BGC.Units.Min <- c("ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc1","ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1")
 # minimal evidence supports occurrence of Ws04 in the BWBS. LMH 52 does not list Ws04 in the BWBS or SWB.  LMH68 does not list Ws04 or related Fl05 in any BWBS.  BWBSmw and wk1 seem to be at the NE margin of S. drummondiana and Spiraea douglasii range. Two plots support the occurrence of the Ws04 in the SBSdh1 (Kyla Rushton personal communication)
-BGC.Units.Max <- c("BWBSwk1", "BWBSmw", "ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1", "SBSwk2")
+BGC.Units.Max <- c("BWBSwk1", "BWBSmw", "ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc1","ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1", "SBSwk2")
 
 BGC.Range.Min <- BEC13 %>% filter(MAP_LABEL %in% BGC.Units.Min)
 BGC.Range.Max <- BEC13 %>% filter(MAP_LABEL %in% BGC.Units.Max)
 #MCP around selected BGC.Units
-BGC.MCP.Min <- st_convex_hull(st_union(BGC.Range.Min))
-BGC.MCP.Max <- st_convex_hull(st_union(BGC.Range.Max))
+BGC.MCP.Inf.Min <- st_convex_hull(st_union(BGC.Range.Min))
+BGC.MCP.Inf.Max <- st_convex_hull(st_union(BGC.Range.Max))
 #area calculations
-BGC.MCP.Min.area.km2 <- as.numeric(st_area(BGC.MCP.Min)) / 1e6
-BGC.MCP.Max.area.km2 <- as.numeric(st_area(BGC.MCP.Max)) / 1e6
+BGC.MCP.Inf.Min.area.km2 <- as.numeric(st_area(BGC.MCP.Inf.Min)) / 1e6
+BGC.MCP.Inf.Max.area.km2 <- as.numeric(st_area(BGC.MCP.Inf.Max)) / 1e6
 BGC.Range.Min.km2 <- sum(BGC.Range.Min$Shape_Area, na.rm = TRUE)/ 1e6
 BGC.Range.Max.km2 <- sum(BGC.Range.Max$Shape_Area, na.rm = TRUE)/ 1e6
 ################################################## PROJECT BOUNDARIES - Ecosystem Mapping ##########
@@ -133,15 +133,7 @@ BEC.Master.Focal <-unique(rbind(BEC.Master.Focal1,BEC.Master.Focal2))
 # Force longitudes to be negative, lat to be numeric
 BEC.Master.Focal$Longitude <- -abs(as.numeric(BEC.Master.Focal$Longitude))
 BEC.Master.Focal$Latitude  <- as.numeric(BEC.Master.Focal$Latitude)
-# REMOVES ROWS WITH NO COORDS. Convert to sf object using Longitude and Latitude
-BEC.Master.Focal.sf <- BEC.Master.Focal %>%
-  filter(is.finite(Longitude), is.finite(Latitude)) %>%
-  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
-# Reproject to albers
-BEC.Master.Focal.sf <- st_transform(BEC.Master.Focal.sf, crs = 3005)
-# Buffer each point by half the LocationAccuracy for viewing in GIS
-BEC.Master.Focal.sf.buffer <- BEC.Master.Focal.sf %>%
-  mutate(geometry = st_buffer(geometry, dist = LocationAccuracy / 2))
+
 # list of plots vetted either by BECSiteUnit field or by Kristi Iverson email 20251125
 BEC.Vetted <- c(
   '14-3231','14-5469','272980','378480','8400061','9613288','9613857','9615182','9615223',
@@ -157,6 +149,17 @@ BEC.Master.Focal <- BEC.Master.Focal %>%
       "No"                        # Value if FALSE
     )
   )
+
+
+# REMOVES ROWS WITH NO COORDS. Convert to sf object using Longitude and Latitude
+BEC.Master.Focal.sf <- BEC.Master.Focal %>%
+  filter(is.finite(Longitude), is.finite(Latitude)) %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
+# Reproject to albers
+BEC.Master.Focal.sf <- st_transform(BEC.Master.Focal.sf, crs = 3005)
+# Buffer each point by half the LocationAccuracy for viewing in GIS
+BEC.Master.Focal.sf.buffer <- BEC.Master.Focal.sf %>%
+  mutate(geometry = st_buffer(geometry, dist = LocationAccuracy / 2))
 ################################################# TEI - QUERY AND CLEAN #########################################################
 ### TEM ###
 # These queries take about 1 hour to run
@@ -477,6 +480,12 @@ AOO.Est.Max.km2 <- (BGC.Range.Max.km2*0.0102)
 # Parameters
 sep.dist.m <- 1000 #m
 min.occ.size.km2 <- 0.0005 # 2 ha
+### Create a new object of all occurrences merging features from BEC.Master.Focal.sf and TEM. Note that unvetted BEC plots are filtered at this stage, but furhter filtering of TEM occurs in the NOO process. 
+# Filter to vetted plots
+BEC.Vetted.Filtered <- BEC.Master.Focal.sf %>% 
+  filter(Include == "Yes")
+# combine with TEM
+Occurrences <- bind_rows(BEC.Vetted.Filtered, TEM)
 ### minimum NOO estimate while excluding TEM from the BWBS. See comments in Range extent. ###
 valid.occurrences.min <- TEM %>% filter(TEM$BGC_ZONE != 'BWBS' & TEM$BGC_ZONE != 'SBSwk2')
 # Filter polygons for min size
@@ -569,6 +578,10 @@ TEM <- TEM %>%
 #### Count NOO
 NOO.Min.Count <- nrow(NOO.Count.Min)
 NOO.Max.Count <- nrow(NOO.Count.Max)
+##################################################  RANGE EXTENT OBSERVED ###############################################################
+### Take object from NOO (combined TEM and BEC.Master.Focal.sf) and use it to create a minimum convex polygon around all recorded occurrences
+BGC.MCP.Obs.Min <- st_convex_hull(st_union(Occurrences))
+BGC.MCP.Obs.Min.area.km2 <- as.numeric(st_area(BGC.MCP.Obs.Min)) / 1e6
 #####################################################  IMPACTS #################################################
 Human.Disturbance <- st_read(My.CEF.Human.Disturbance.path, "BC_CEF_HUMAN_DISTURBANCE_2023_fixed")
 
@@ -599,8 +612,10 @@ st_write(TEM, out.gpkg, layer = "TEM")
 # Write Range
 st_write(BGC.Range.Min, out.gpkg, layer ="BGC.Range.Min")
 st_write(BGC.Range.Max, out.gpkg, layer ="BGC.Range.max")
-st_write(BGC.MCP.Min, out.gpkg, layer = "BGC.MCP.Min")
-st_write(BGC.MCP.Max, out.gpkg, layer = "BGC.MCP.Max")
+st_write(BGC.MCP.Inf.Min, out.gpkg, layer = "BGC.MCP.Inf.Min")
+st_write(BGC.MCP.Inf.Max, out.gpkg, layer = "BGC.MCP.Inf.Max")
+st_write(BGC.MCP.Obs.Min, out.gpkg, layer = "BGC.MCP.Obs.Min")
+
 # Write NOO
 st_write(NOO.Count.Max, out.gpkg, layer = "NOO.Max")
 st_write(NOO.Count.Min, out.gpkg, layer = "NOO.Min")
@@ -697,8 +712,9 @@ writeDataTable(
 addWorksheet(data.xlsx, "Range")
 range_summary <- data.frame(
   Metric = c(
-    "BGC MCP Area Min (km2)",
-    "BGC MCP Area Max (km2)",
+    "Range Extent Observed Area Min (km2)",
+    "Range Extent Inferred Area Min (km2)",
+    "Range Extent Inferred Area Max (km2)",
     "BGC Mapped Area Min (km2)",
     "BGC Mapped Area Min (percent)",
     "BGC Mapped Area Max (km2)",
@@ -707,8 +723,9 @@ range_summary <- data.frame(
     "BGC Range Max (km2)"
   ),
   Value = round(c(
-    BGC.MCP.Min.area.km2,
-    BGC.MCP.Max.area.km2,
+    BGC.MCP.Obs.Min.area.km2,
+    BGC.MCP.Inf.Min.area.km2,
+    BGC.MCP.Inf.Max.area.km2,
     BGC.Range.Mapped.Min.km2,
     BGC.Range.Mapped.Min.Percent,
     BGC.Range.Mapped.Max.km2,
@@ -763,20 +780,19 @@ setColWidths(data.xlsx, sheet = "AOO", cols = 1:2, widths = "auto")
 setColWidths(data.xlsx, sheet = "NOO", cols = 1:2, widths = "auto")
 setColWidths(data.xlsx, sheet = "Impact Summary", cols = 1:2, widths = "auto")
 
-
 ######################################################## FACTOR COMMENTS #######################################################
 # assign text variables
-Comments.Range.Extent <- glue("Test")
-Comments.AOO <- glue("Test")
-Comments.NOO <- glue("Test")
-Comments.NOOGEI <- glue("")
-Comments.AOOGEI <- glue("")
-Comments.Env.Spe <- glue("")
-Comments.Assigned.Threats <- glue("")
+Comments.Range.Extent <- glue("We estimate that the range extent of this ecological community is between {BGC.MCP.Inf.Min.area.km2} km2 and {BGC.MCP.Inf.Max.area.km2} km2. The estimates were made based on the area within minimum convex polygons around the boundaries of bigeoclimatic (BGC) units where the ecological community is known to occur (minimum), and around the all BGC unit boundaries where it is known to occur plus those where it has been reported but not yet confirmed (maximum). The area within BGC units where the ecological community is known to occur is known as the BGC range. We estimate that the BGC range is between {BGC.Range.Min} km2 and {BGC.Range.Max} km2 based on the same subsets of BGC units used to calculate the minimum and maximum range extent above. The BGC range of this ecological community was determined based on expert observations (Deb MacKillop pers. com., Kristi Iverson pers. com., Kyla Rushton pers. com., and Harry Williams pers. com.), ecosystem plot locations from the BECMaster database (Ministry of Forests, n.d.), ecosystem mapping records (Ministry of Water, Land and Resource Stewardship n.d.), and from Biogeoclimatic Ecosystem Classification Publications (MacKenzie and Moran 2004, MacKillop and Ehman 2016, MacKillop et al. 2018 and 2021, and Ryan et al. 2022). The mapping is based on BEC Version 12 (Ministry of Forests, n.d.). ")
+Comments.AOO <- glue("The observed area of occupancy (AOO) for this ecological community is between {AOO.Obs.Min.km2} km2 and {AOO.Obs.Max.km2} km2.  The observed AOO values are based on the sums of the areas of the ecological community in ecosystem mapping records in BGC units where the ecological community is known to occur (minimum), and in all BGC units where it is known to occur plus those where it has been reported but not yet confirmed. The estimated AOO is between {AOO.Est.Min.km2} km2, and {AOO.Est.Max.km2} km2. The estimates were calculated by multiplying the area of of the estimated BGC range of the ecological community by minimum and maximum occupancy rates of the ecological community recorded in ecosystem mappping projects (i.e., area of the ecological community mapped per total area mapped). It is challenging to determine how much inventory capable of recording this ecological community has occurred. Though a great deal of the biogeoclimatic range has ecosystem mapping, most of it is predictive ecosystem mapping that does not identify wetland ecosystems to the site association level. Only {BGC.Range.Mapped.Min.Percent} percent of the BGC range is covered by mapping projects that actually recorded this ecological community and can therefore be confirmed as valid inventory. Up to {BGC.Range.Mapped.Max.Percent} percent of the BGC range of the ecological community is covered by terrestrial ecosystem mapping projects that appear capable of mapping the focal ecological community but did not actually record it in any polygons. It appears that effective inventory for this ecological community is minimal.").
+Comments.NOO <- glue("There are between {NOO.Min.Count} and {NOO.Max.Count} observed occurrences of this ecological community based on counts of clusters of ecosystem mapping records with a minimum patch size of {min.occ.size.km2} km2 and a separation distance of {sep.dist.m} meters. The observed NOO values are based on running the clustering algorithm based on ecosystem mapping records in BGC units where the ecological community is known to occur (minimum), and records from all BGC units where it is known to occur plus those where it has been reported but not yet confirmed.  Based on the apparent low rate of inventory for this ecological community, we infer that there may be greater than 300 occurrences total.")
+Comments.NOOGEI <- glue("Insufficient data. Factor not assessed.")
+Comments.AOOGEI <- glue("Insufficient data. Factor not assessed.")
+Comments.Env.Spe <- glue("Factor not assessed.")
+Comments.Assigned.Threats <- glue("Fifty-one percent of ecosystem mapping polygons (Ministry of Water, Land and Resource Stewardship n.d.) containing this ecological community intersect timber harvest cutblock polygons (Ministry of Environment and Climate Change Strategy 2023). Though not the target of timber timber harvest, the ecological integrity of occurrences of this community may be impacted by ongoing timber harvest activity. The severity of potential impacts from timber harvest are not known.")
 Comments.Calculated.Threats <- glue("")
-Comments.Int.Vul <- glue("")
-Comments.Short.Term.Trends <- glue("")
-Comments.Long.Term.Trends <- glue("")
+Comments.Int.Vul <- glue("Factor not assessed.")
+Comments.Short.Term.Trends <- glue("Insufficient data. Factor not assessed.")
+Comments.Long.Term.Trends <- glue("Insufficient data. Factor not assessed.")
 #Vector of variable names and row numbers
 factor.comments <- c(
   "Comments.Range.Extent",
@@ -816,53 +832,11 @@ saveWorkbook(
   overwrite = TRUE
 )
 
-#################################### UTILITIES #####################################################################
-### Compare vetted BECMaster points with BGC units for Range Extent
-# Keep only vetted plots
-pts_in <- BEC.Master.Focal.sf %>%
-  filter(Include == 1)
-# Join overlapping features to select BGC units with valid plots in them
-join_res <- st_join(
-  pts_in, 
-  BEC13 %>% select(MAP_LABEL), 
-  join = st_intersects, 
-  left = FALSE  # keep only points that intersect a polygon
-)
-st_write(join_res, out.gpkg, layer = "BECMasterTest")
-# Extract MAP_LABELs (unique) and sort
-map_labels <- join_res %>%
-  pull(MAP_LABEL) %>%
-  unique()
-
-### ran this and confirmed that ALL BAPIDs with 'valid' mapcodes are in TEM 1 & 2
-# For TEM1
-bapid1 <- sf::st_read(dsn = TEM1.path, query = "SELECT BAPID FROM TEI_Long_Tbl", quiet = TRUE)
-unique_bapid1 <- sort(unique(sf::st_drop_geometry(bapid1)$BAPID))
-
-# For TEM2
-bapid2 <- sf::st_read(dsn = TEM2.path, query = "SELECT BAPID FROM TEI_Long_Tbl", quiet = TRUE)
-unique_bapid2 <- sort(unique(sf::st_drop_geometry(bapid2)$BAPID))
-
-combined_bapid <- sort(unique(c(unique_bapid1, unique_bapid2)))
-
-# valid bapids
-check_vals <- c(1049, 1054, 4, 1048, 216, 135, 1046, 216, 233, 244)
-
-# compare (all match)
-result <- data.frame(
-  value = check_vals,
-  in_combined = ifelse(check_vals %in% combined_bapid, "yes", "no"),
-  stringsAsFactors = FALSE
-)
-
-### Examine BAPIDS from LONG TABLE
-# Unique values only (attribute-only query)
-u <- st_read(TEI.Path, query = sprintf('SELECT DISTINCT "%s" FROM "%s"', "BAPID", "TEIS_Master_Long_Tbl"), quiet = TRUE)
-overlapping.BAPIDS <- unique(TEI.proj.bound.all$BUSINESS_AREA_PROJECT_ID)
-
-Missing.Projects <- setdiff(overlapping.BAPIDS, u$BAPID)
-
-TEI.proj.bound.all$missing_bapid <- ifelse(
-  TEI.proj.bound.all$BUSINESS_AREA_PROJECT_ID %in% Missing.Projects,
-  "yes", "no"
-)
+#################################### To do next #####################################################################
+# Get BGC range observed.
+# Get NOO with BECmaster included. Double check filter TERMS re SBSwk2 in ZONE field (error)
+# clean up AOO calculation based on my spreadhseet
+# update factor comments
+# fix variable names
+# add rounding
+# add NULL impact label to impact summary table
