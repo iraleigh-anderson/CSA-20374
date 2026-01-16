@@ -1,4 +1,10 @@
+.Rprofile
+.Renviron
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+data/
+delete/
+outputs/
+*.qgz
