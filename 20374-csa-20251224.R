@@ -77,7 +77,7 @@ TEI.proj.bound.min <- st_read(
   query = "
     SELECT *
     FROM WHSE_TERRESTRIAL_ECOLOGY_STE_TEI_PROJECT_BOUNDARIES_SP
-    WHERE BUSINESS_AREA_PROJECT_ID IN (4, 108, 135, 209, 216, 233, 239, 244, 1046, 1048, 1049, 1054, 1055, 4523, 6473, 6536, 6605, 6624)
+    WHERE BUSINESS_AREA_PROJECT_ID IN (4, 108, 135, 209, 216, 233, 239, 244, 1046, 1048, 1049, 1054, 1055, 4917, 4523, 6473, 6536, 6605, 6624)
   ")
 ### determine MIN extent of overlap between selected ecosystem mapping projects and BGC Range 
 overlap_sf <- st_intersection(BGC.Range.Min, TEI.proj.bound.min)
@@ -259,21 +259,15 @@ filter_condition <-
   (TEM.m$BGC.Full == 'IDFdk2' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
   (TEM.m$BGC.Full == 'MSxk' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
   (TEM.m$BGC.Full == 'MSdm2' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
-  (TEM.m$BGC.Full == 'ESSFxc' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
-  (TEM.m$BGC.Full == 'ESSFdc2' & TEM.m$BAPID == 108 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
   (TEM.m$BGC.Full == 'SBSmw' & TEM.m$BAPID == 135 & (TEM.m$SITEMC_S1 == 'WD' | TEM.m$SITEMC_S2 == 'WD' | TEM.m$SITEMC_S3 == 'WD')) |
-  (TEM.m$BGC.Full == 'SBSdk' & TEM.m$BAPID == 209 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
   (TEM.m$BGC.Full == 'SBSdk' & TEM.m$BAPID == 216 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
   (TEM.m$BGC.Full == 'SBSmc2' & TEM.m$BAPID == 216 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
   (TEM.m$BGC.Full == 'SBSmw' & TEM.m$BAPID == 233 & (TEM.m$SITEMC_S1 == 'WD' | TEM.m$SITEMC_S2 == 'WD' | TEM.m$SITEMC_S3 == 'WD')) |
-  (TEM.m$BGC.Full == 'IDFdm1' & TEM.m$BAPID == 239 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
-  (TEM.m$BGC.Full == 'MSdm1' & TEM.m$BAPID == 239 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
   (TEM.m$BGC.Full == 'SBSmw' & TEM.m$BAPID == 244 & (TEM.m$SITEMC_S1 == 'WD' | TEM.m$SITEMC_S2 == 'WD' | TEM.m$SITEMC_S3 == 'WD')) |
   (TEM.m$BGC.Full == 'SBSwk1' & TEM.m$BAPID == 1046 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
   (TEM.m$BGC.Full == 'SBSdw2' & TEM.m$BAPID == 1048 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
   (TEM.m$BGC.Full == 'SBPSmk' & TEM.m$BAPID == 1049 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
   (TEM.m$BGC.Full == 'SBPSxc' & TEM.m$BAPID == 1054 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
-  (TEM.m$BGC.Full == 'MSdm1' & TEM.m$BAPID == 1055 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
   (TEM.m$BGC.Full == 'IDFdm1' & TEM.m$BAPID == 1055 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS'))
 
 TEM.m <- TEM.m %>%
@@ -385,9 +379,9 @@ TEM <- TEM %>%
       #Conditions based on BGC.Full, BAPID, and SITEMC
       
       # SBSdk / WS (BAPID 4 and 216)
-      BGC.Full == 'SBSdk' & BAPID %in% c(4, 209, 216) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
-      BGC.Full == 'SBSdk' & BAPID %in% c(4, 209, 216) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
-      BGC.Full == 'SBSdk' & BAPID %in% c(4, 209, 216) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      BGC.Full == 'SBSdk' & BAPID %in% c(4,216) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'SBSdk' & BAPID %in% c(4,216) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'SBSdk' & BAPID %in% c(4,216) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
       
       # SBSmw / WD (BAPID 135, 233, 244)
       BGC.Full == 'SBSmw' & BAPID %in% c(135, 233, 244) & SITEMC_S1 == 'WD' ~ SDEC_1 * 0.1 * Shape_Area,
@@ -419,30 +413,15 @@ TEM <- TEM %>%
       BGC.Full == 'SBPSxc' & BAPID == 1054 & SITEMC_S2 == 'DS' ~ SDEC_2 * 0.1 * Shape_Area,
       BGC.Full == 'SBPSxc' & BAPID == 1054 & SITEMC_S3 == 'DS' ~ SDEC_3 * 0.1 * Shape_Area,
       
-      # ESSFdc2 / WS (BAPID 108)
-      BGC.Full == 'ESSFdc2' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
-      BGC.Full == 'ESSFdc2' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
-      BGC.Full == 'ESSFdc2' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
-      
-      # ESSFxc / WS (BAPID 108)
-      BGC.Full == 'ESSFxc' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
-      BGC.Full == 'ESSFxc' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
-      BGC.Full == 'ESSFxc' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
-      
       # IDFdk2 / WS (BAPID 108)
       BGC.Full == 'IDFdk2' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
       BGC.Full == 'IDFdk2' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
       BGC.Full == 'IDFdk2' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
       
-      # IDFdm1 / WS (BAPID 239, 1055)
-      BGC.Full == 'IDFdm1' & BAPID %in% c(239, 1055) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
-      BGC.Full == 'IDFdm1' & BAPID %in% c(239, 1055) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
-      BGC.Full == 'IDFdm1' & BAPID %in% c(239, 1055) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
-      
-      # MSdm1 / WS (BAPID 239, 1055)
-      BGC.Full == 'MSdm1' & BAPID %in% c(239, 1055) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
-      BGC.Full == 'MSdm1' & BAPID %in% c(239, 1055) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
-      BGC.Full == 'MSdm1' & BAPID %in% c(239, 1055) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      # IDFdm1 / WS (BAPID 1055)
+      BGC.Full == 'IDFdm1' & BAPID %in% c(1055) & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full == 'IDFdm1' & BAPID %in% c(1055) & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full == 'IDFdm1' & BAPID %in% c(1055) & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
       
       # MSxk / WS (BAPID 108)
       BGC.Full == 'MSxk' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
@@ -621,31 +600,31 @@ impact.summary.df <- Impacts %>%
   ) %>%
   mutate(
     CEF_DISTURB_GROUP = ifelse(is.na(CEF_DISTURB_GROUP), "No Recorded Human Disturbance", CEF_DISTURB_GROUP),
-    percent = round((unique_teis_count / nrow(TEM)) * 100, 1)
+    percent = round((unique_teis_count / nrow(TEM)) * 100, 0)
   )
 #################################################### WRITE SPATIAL #################################################################
 # define output path
 out.gpkg <- file.path(getwd(), "outputs", paste0(El.Sub.ID, "-csa-", format(Sys.time(), "%Y%m%d_%H%M"), ".gpkg"))
 
 #write BEC Master points GPKG
-st_write(BEC.Master.Focal.sf.buffer, out.gpkg, layer = "BECMaster")
+st_write(BEC.Master.Focal.sf.buffer, out.gpkg, layer = "BECMaster (Buffered Locational Uncertainty)")
 #write TEM
-st_write(TEM, out.gpkg, layer = "TEM")
+st_write(TEM, out.gpkg, layer = "TEM (all)")
 # Write Range
-st_write(BGC.Range.Min, out.gpkg, layer ="BGC.Range.Min")
-st_write(BGC.Range.Max, out.gpkg, layer ="BGC.Range.max")
-st_write(BGC.MCP.Inf.Min, out.gpkg, layer = "BGC.MCP.Inf.Min")
-st_write(BGC.MCP.Inf.Max, out.gpkg, layer = "BGC.MCP.Inf.Max")
-st_write(BGC.MCP.Obs.Min, out.gpkg, layer = "BGC.MCP.Obs.Min")
+st_write(BGC.Range.Min, out.gpkg, layer ="BGC Mapped Area Min")
+st_write(BGC.Range.Max, out.gpkg, layer ="BGC Mapped Area Max")
+st_write(BGC.MCP.Inf.Min, out.gpkg, layer = "Range Extent Inferred Area Min (MCP)")
+st_write(BGC.MCP.Inf.Max, out.gpkg, layer = "Range Extent Inferred Area Max (MCP)")
+st_write(BGC.MCP.Obs.Min, out.gpkg, layer = "Range Extent Observed Area Min (MCP)")
 # Write NOO
-st_write(NOO.Max, out.gpkg, layer = "NOO.Max")
-st_write(NOO.Min, out.gpkg, layer = "NOO.Min")
+st_write(NOO.Max, out.gpkg, layer = "NOO Max Clusters")
+st_write(NOO.Min, out.gpkg, layer = "NOO Min Clusters")
 # Write Occurrences
-st_write(Occurrences, out.gpkg, layer = "Occurrences")
+st_write(Occurrences, out.gpkg, layer = "Occurrences (Selected TEM and BECMaster records")
 # Write selected project boundaries and write ALL project boundaries (for ease of review)
-st_write(TEI.proj.bound.all, out.gpkg, layer = "TEI.proj.bound.all")
-st_write(TEI.proj.bound.min, out.gpkg, layer = "TEI.proj.bound.min")
-st_write(TEI.proj.bound.max, out.gpkg, layer = "TEI.proj.bound.max")
+st_write(TEI.proj.bound.all, out.gpkg, layer = "TEI Project Boundaries (All)")
+st_write(TEI.proj.bound.min, out.gpkg, layer = "TEI Project Boundaries (Min - valid)")
+st_write(TEI.proj.bound.max, out.gpkg, layer = "TEI Project Boundaries (Max - valid)")
 ############################################################### WRITE TABLES ####################################################
 ### Round all values for reporting
 round <- list(
@@ -677,10 +656,10 @@ round <- list(
 data.xlsx <- createWorkbook()
 ### WRITE DATA ###
 ### BEC Master Data 
-addWorksheet(data.xlsx, "BEC.Master.Focal")
-writeDataTable(data.xlsx, sheet = "BEC.Master.Focal", x = BEC.Master.Focal, 
+addWorksheet(data.xlsx, "BECMaster")
+writeDataTable(data.xlsx, sheet = "BECMaster", x = BEC.Master.Focal, 
                startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
-setColWidths(data.xlsx, sheet = "BEC.Master.Focal", cols = 1:50, widths = "auto")
+setColWidths(data.xlsx, sheet = "BECMaster", cols = 1:50, widths = "auto")
 ### Project Boundaries Data 
 TEI.df <- st_drop_geometry(TEI.proj.bound.all)
 addWorksheet(data.xlsx, "TEI Projects")
@@ -689,16 +668,16 @@ writeDataTable(data.xlsx, sheet = "TEI Projects", x = TEI.df,
 setColWidths(data.xlsx, sheet = "TEI Projects", cols = 1:50, widths = "auto")
 ### TEM Data 
 TEM.df <- st_drop_geometry(TEM)
-addWorksheet(data.xlsx, "TEM")
-writeDataTable(data.xlsx, sheet = "TEM", x = TEM.df, 
+addWorksheet(data.xlsx, "TEI")
+writeDataTable(data.xlsx, sheet = "TEI", x = TEM.df, 
                startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
-setColWidths(data.xlsx, sheet = "TEM", cols = 1:50, widths = "auto")
+setColWidths(data.xlsx, sheet = "TEI", cols = 1:50, widths = "auto")
 ### Impacts Data
 Impacts.df <- st_drop_geometry(Impacts)
-addWorksheet(data.xlsx, "Impacts")
-writeDataTable(data.xlsx, sheet = "Impacts", x = Impacts.df, 
+addWorksheet(data.xlsx, "Impact (raw)")
+writeDataTable(data.xlsx, sheet = "Impact (raw)", x = Impacts.df, 
                startCol = 1, startRow = 1, tableStyle = "TableStyleLight8")
-setColWidths(data.xlsx, sheet = "Impacts", cols = 1:50, widths = "auto")
+setColWidths(data.xlsx, sheet = "Impact (raw)", cols = 1:50, widths = "auto")
 ### Geographic Data
 #BEC Master formatting
 # add fields
@@ -745,11 +724,11 @@ st_drop_geometry()
 Geographic.Summary <- bind_rows(BEC.Geographic.Summary,TEI.Geographic.Summary)
 
 # Write to Excel as a formatted table
-addWorksheet(data.xlsx, "Geographic")
+addWorksheet(data.xlsx, "Geographic Summary")
 
 writeDataTable(
   wb         = data.xlsx,
-  sheet      = "Geographic",
+  sheet      = "Geographic Summary",
   x          = Geographic.Summary,
   startCol   = 1,
   startRow   = 1,
@@ -757,7 +736,7 @@ writeDataTable(
 )
 ### Write Summaries ###
 #write Range summary stats
-addWorksheet(data.xlsx, "Range")
+addWorksheet(data.xlsx, "Range Summary")
 range_summary <- data.frame(
   Metric = c(
     "Range Extent Observed Area Min (km2)",
@@ -781,10 +760,10 @@ range_summary <- data.frame(
     round$BGC.Range.Min.km2,
     round$BGC.Range.Max.km2
   ))
-writeData(data.xlsx, "Range", range_summary, startRow = 1)
-setColWidths(data.xlsx, sheet = "Range", cols = 1:2, widths = "auto")
+writeData(data.xlsx, "Range Summary", range_summary, startRow = 1)
+setColWidths(data.xlsx, sheet = "Range Summary", cols = 1:2, widths = "auto")
 #write AOO summary stats
-addWorksheet(data.xlsx, "AOO")
+addWorksheet(data.xlsx, "AOO Summary")
 aoo_summary <- data.frame(
   Metric = c(
     "Observed AOO Min (km2)",
@@ -804,10 +783,10 @@ aoo_summary <- data.frame(
     round$Patch.Size.Max.ha,
     round$Patch.Size.Med.ha
   ))
-writeData(data.xlsx, "AOO", aoo_summary, startRow = 1)
-setColWidths(data.xlsx, sheet = "AOO", cols = 1:2, widths = "auto")
+writeData(data.xlsx, "AOO Summary", aoo_summary, startRow = 1)
+setColWidths(data.xlsx, sheet = "AOO Summary", cols = 1:2, widths = "auto")
 #write NOO summary stats
-addWorksheet(data.xlsx, "NOO")
+addWorksheet(data.xlsx, "NOO Summary")
 noo_summary <- data.frame(
   Parameter = c("NOO Minimum Count", 
                 "NOO Maximum Count", 
@@ -817,21 +796,21 @@ noo_summary <- data.frame(
             round$NOO.Count.Max, 
             round$min.occ.size.km2, 
             round$sep.dist.m))
-writeData(data.xlsx, "NOO", noo_summary, startRow = 1)
-setColWidths(data.xlsx, sheet = "NOO", cols = 1:2, widths = "auto")
+writeData(data.xlsx, "NOO Summary", noo_summary, startRow = 1)
+setColWidths(data.xlsx, sheet = "NOO Summary", cols = 1:2, widths = "auto")
 # Write Impacts Summary
 addWorksheet(data.xlsx, "Impact Summary")
 writeData(data.xlsx, sheet = "Impact Summary", x = impact.summary.df)
 setColWidths(data.xlsx, sheet = "Impact Summary", cols = 1:3, widths = "auto")
 ######################################################## FACTOR COMMENTS #######################################################
-# assign text variables
-Comments.Range.Extent <- glue("We estimate that the range extent of this ecological community is between {round$BGC.MCP.Inf.Min.area.km2} km2 and {round$BGC.MCP.Inf.Max.area.km2} km2. The estimates were made based on the area within minimum convex polygons around the boundaries of bigeoclimatic (BGC) units where the ecological community is known to occur (minimum), and around the all BGC unit boundaries where it is known to occur plus those where it has been reported but not yet confirmed (maximum). The area within BGC units where the ecological community is known to occur is known as the BGC range. We estimate that the BGC range is between {round$BGC.Range.Min.km2} km2 and {round$BGC.Range.Max.km2} km2 based on the same subsets of BGC units used to calculate the minimum and maximum range extent above. The BGC range of this ecological community was determined based on expert observations (Deb MacKillop pers. com., Kristi Iverson pers. com., Kyla Rushton pers. com., and Harry Williams pers. com.), ecosystem plot locations from the BECMaster database (Ministry of Forests, n.d.), ecosystem mapping records (Ministry of Water, Land and Resource Stewardship n.d.), and from Biogeoclimatic Ecosystem Classification Publications (MacKenzie and Moran 2004, MacKillop and Ehman 2016, MacKillop et al. 2018 and 2021, and Ryan et al. 2022). The mapping is based on BEC Version 12 (Ministry of Forests, n.d.).")
-Comments.AOO <- glue("The observed area of occupancy (AOO) for this ecological community is between {round$AOO.Obs.Min.km2} km2 and {round$AOO.Obs.Max.km2} km2.  The observed AOO values are based on the sums of the areas of the ecological community in ecosystem mapping records in BGC units where the ecological community is known to occur (minimum), and in all BGC units where it is known to occur plus those where it has been reported but not yet confirmed. The estimated AOO is between {round$AOO.Est.Min.km2} km2, and {round$AOO.Est.Max.km2} km2. The estimates were calculated by multiplying the area of of the estimated BGC range of the ecological community by minimum and maximum occupancy rates of the ecological community recorded in ecosystem mappping projects (i.e., area of the ecological community mapped per total area mapped). It is challenging to determine how much inventory capable of recording this ecological community has occurred. Though a great deal of the biogeoclimatic range has ecosystem mapping, most of it is predictive ecosystem mapping that does not identify wetland ecosystems to the site association level. Only {round$BGC.Range.Mapped.Min.Percent} percent of the BGC range is covered by mapping projects that actually recorded this ecological community and can therefore be confirmed as valid inventory. Up to {BGC.Range.Mapped.Max.Percent} percent of the BGC range of the ecological community is covered by terrestrial ecosystem mapping projects that appear capable of mapping the focal ecological community but did not actually record it in any polygons. It appears that effective inventory for this ecological community is minimal.").
-Comments.NOO <- glue("There are between {round$NOO.Count.Min} and {round$NOO.Count.Max} observed occurrences of this ecological community based on counts of clusters of ecosystem mapping records with a minimum patch size of {round$min.occ.size.km2} km2 and a separation distance of {round$sep.dist.m} meters. The observed NOO values are based on running the clustering algorithm based on ecosystem mapping records in BGC units where the ecological community is known to occur (minimum), and records from all BGC units where it is known to occur plus those where it has been reported but not yet confirmed.  Based on the apparent low rate of inventory for this ecological community, we infer that there may be greater than 300 occurrences total.")
+### assign text variables
+Comments.Range.Extent <- glue("The observed range extent of this ecological community is {round$BGC.MCP.Obs.Min.area.km2} km2. It was calculated based on the area of a minimum convex polygon around all extant records of the community in Terrestrial Ecosystem Mapping (Ministry of Water, Land and Resource Stewardship n.d.) and confirmed ecosystem plot locations (BC Ministry of Forests n.d.). This is an underestimate, because inventory for this ecological community is incomplete. We infer that the range extent of this ecological community is between {round$BGC.MCP.Inf.Min.area.km2} km2 and {round$BGC.MCP.Inf.Max.area.km2} km2. The inferences are based on the area within minimum convex polygons around the boundaries of biogeoclimatic (BGC) units where the ecological community is known to occur (minimum), and around the all BGC unit boundaries where it is known to occur plus those where it has been reported but not yet confirmed (maximum). The area within BGC units where the ecological community is known to occur is known as the BGC range. We estimate that the BGC range is between {round$BGC.Range.Min.km2} km2 and {round$BGC.Range.Max.km2} km2 based on the same subsets of BGC units used to calculate the minimum and maximum range extent above. The BGC range of this ecological community was determined based on expert observations (Deb MacKillop pers. com., Kristi Iverson pers. com., Kyla Rushton pers. com., and Harry Williams pers. com.), ecosystem plot locations from the BECMaster database (Ministry of Forests, n.d.), ecosystem mapping records (Ministry of Water, Land and Resource Stewardship n.d.), and from Biogeoclimatic Ecosystem Classification Publications (MacKenzie and Moran 2004, MacKillop and Ehman 2016, MacKillop et al. 2018 and 2021, and Ryan et al. 2022). The mapping is based on BEC Version 12 (Ministry of Forests, n.d.).")
+Comments.AOO <- glue("The observed area of occupancy (AOO) for this ecological community is between {round$AOO.Obs.Min.km2} km2 and {round$AOO.Obs.Max.km2} km2. The observed AOO values are based on the sums of the areas of the ecological community in ecosystem mapping records in BGC units where the ecological community is known to occur (minimum), and in all BGC units where it is known to occur plus those where it has been reported but not yet confirmed. The estimated AOO is between {round$AOO.Est.Min.km2} km2, and {round$AOO.Est.Max.km2} km2. The estimates were calculated by multiplying the area of of the estimated BGC range of the ecological community by minimum and maximum occupancy rates (i.e., area of the ecological community mapped per total area mapped) of the ecological community recorded in TEM projects. It is challenging to determine how much inventory capable of recording this ecological community has occurred. Though a great deal of the BGC range has ecosystem mapping, most of it is predictive ecosystem mapping that does not identify wetland ecosystems to the site association level. Only {round$BGC.Range.Mapped.Min.Percent} percent of the BGC range is covered by mapping projects that actually recorded this ecological community and can therefore be confirmed as valid inventory. Up to {round$BGC.Range.Mapped.Max.Percent} percent of the BGC range is covered by ecosystem mapping projects that appear capable of detecting the community. It appears that effective inventory for this ecological community is minimal.")
+Comments.NOO <- glue("There are between {round$NOO.Count.Min} and {round$NOO.Count.Max} observed occurrences of this ecological community based on counts of clusters of ecosystem mapping records with a minimum patch size of {round$min.occ.size.km2} km2 and a separation distance of {round$sep.dist.m} meters. The observed NOO values are based on counts of clusters of ecosystem mapping records and plot locations in BGC units where the community is known to occur (minimum), and records from all BGC units where it is known to occur plus those where it has been reported but not yet confirmed. Based on the apparent low rate of inventory for this ecological community, we infer that there may be greater than 300 occurrences total.")
 Comments.NOOGEI <- glue("Insufficient data. Factor not assessed.")
 Comments.AOOGEI <- glue("Insufficient data. Factor not assessed.")
 Comments.Env.Spe <- glue("Factor not assessed.")
-Comments.Assigned.Threats <- glue("Fifty-one percent of ecosystem mapping polygons (Ministry of Water, Land and Resource Stewardship n.d.) containing this ecological community intersect timber harvest cutblock polygons (Ministry of Environment and Climate Change Strategy 2023). Though not the target of timber timber harvest, the ecological integrity of occurrences of this community may be impacted by ongoing timber harvest activity. The severity of potential impacts from timber harvest are not known.")
+Comments.Assigned.Threats <- glue("Overall, {impact.summary.df$percent[impact.summary.df$CEF_DISTURB_GROUP == 'Cutblocks']}% of ecosystem mapping polygons (Ministry of Water, Land and Resource Stewardship n.d.) containing this ecological community intersect timber harvest polygons (Ministry of Environment and Climate Change Strategy 2023). Though not the target of timber timber harvest, the ecological integrity of occurrences of this community may be impacted by ongoing timber harvest activity. The severity of potential impacts from timber harvest are not known, but are expected to be greater than negligible, and less than extreme so a severity value of High - Low was assigned. Impacts from climate change are unknown. This community has a large BGC range and climate change impacts may vary geographically, so the scope of climate change threat is unknown. Likewise, the severity of climate change impacts are unknown as we could not find information on how vulnerable this community is to various potential climate impacts (e.g., increased temperature, decreased precipitation, and changes in seasonality). We have low confidence in the assigned threat impact value because there is very little data available to support it. More data on the geographic distribution of this community would be required to confidently determine trends and assess threats.")
 Comments.Calculated.Threats <- glue("")
 Comments.Int.Vul <- glue("Factor not assessed.")
 Comments.Short.Term.Trends <- glue("Insufficient data. Factor not assessed.")
@@ -852,21 +831,31 @@ factor.comments <- c(
 )
 factor.comments.rows <- c(1,3,6,9,10,11,12,13,14,15,16)
 
-addWorksheet(data.xlsx, "Factor.Comments")
+addWorksheet(data.xlsx, "Factor Comments")
+# Clear  sheet to avoid ghost data
+deleteData(data.xlsx, sheet = "Factor Comments", cols = 1:2, rows = 1:100, gridExpand = TRUE)
 
-# Write variable names and values to specific rows to allow single paste into the rank calculator
+# Write explicitly row by row
 for (i in seq_along(factor.comments)) {
   var_name <- factor.comments[i]
-  var_value <- get(var_name, envir = .GlobalEnv)
+  var_value <- get(var_name)
   row_num <- factor.comments.rows[i]
   
-  writeData(data.xlsx, sheet = "Factor.Comments", x = var_name,  startCol = 1, startRow = row_num)
-  writeData(data.xlsx, sheet = "Factor.Comments", x = var_value, startCol = 2, startRow = row_num)
+  # Write the Label (Col 1)
+  writeData(data.xlsx, sheet = "Factor Comments", x = var_name, startCol = 1, startRow = row_num)
+  
+  # Write the Comment (Col 2) - using 'as.character' to strip any weird formatting
+  writeData(data.xlsx, sheet = "Factor Comments", x = as.character(var_value), startCol = 2, startRow = row_num)
 }
-#auto expand column widths and apply text wrapping
-wrapStyle <- createStyle(wrapText = TRUE)
-addStyle(data.xlsx, sheet = "Factor.Comments", style = wrapStyle, rows = 1:100, cols = 2:2, gridExpand = TRUE)
-setColWidths(data.xlsx, sheet = "Factor.Comments", cols = 1:50, widths = "auto")
+
+# Apply wrap style
+wrapStyle <- createStyle(wrapText = TRUE, valign = "top")
+addStyle(data.xlsx, sheet = "Factor Comments", style = wrapStyle, 
+         rows = factor.comments.rows, cols = 2, gridExpand = TRUE)
+
+# Set fixed widths 
+setColWidths(data.xlsx, sheet = "Factor Comments", cols = 1, widths = 30)
+setColWidths(data.xlsx, sheet = "Factor Comments", cols = 2, widths = 200)
 
 ### Save workbook ###
 saveWorkbook(
@@ -875,8 +864,11 @@ saveWorkbook(
   overwrite = TRUE
 )
 #################################### To do next #####################################################################
-# clean up AOO calculation based on my spreadhseet
-# update factor comments
+# Use THLB to determine threat scope
+# Better names for spatial layers
+# add commas and additional formatting to numbers for reporting under the 'round' list
+# add QGIS styling
+# Optimize presentation of impacts table by dropping/arranging columns
 #### write functions and use input tables to set query values for
 # 1. Biogeoclimatic range list
 # 2. BAPIDS list
