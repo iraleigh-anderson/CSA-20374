@@ -602,6 +602,62 @@ impact.summary.df <- Impacts %>%
     CEF_DISTURB_GROUP = ifelse(is.na(CEF_DISTURB_GROUP), "No Recorded Human Disturbance", CEF_DISTURB_GROUP),
     percent = round((unique_teis_count / nrow(TEM)) * 100, 0)
   )
+#####################################################  THREATS #################################################
+### THLB scope determination
+THLB_path<-"V:/BaseData/TSA_THLB.gpkg"
+# Create a bounding box from BGC unit geometry.
+bbox.wkt <- st_as_text(st_as_sfc(st_bbox(BGC.Range.Max)))
+# Create simplified BGC range sf for efficiency
+BGC.Range.Max.Simple.400 <- st_simplify(BGC.Range.Max, 
+                                        preserveTopology = TRUE, 
+                                        dTolerance = 400) # smooth to 400 meters
+
+# GDB UPLOAD uses bounding box wkt filter defined under TRENDS above
+#THLB <- st_read(dsn = THLB.path, 
+                #layer = "prov_THLB_tsas", 
+                #wkt_filter = bbox.wkt)
+
+# experimental GPKG upload
+# only rows that are in the THLB use  "WHERE thlb_fact > 0"
+# but should include THLB
+attr_query <- "SELECT * FROM prov_THLB_tsas"
+# This uses the spatial index for the box AND the SQL engine for the attribute (20 minutes)
+THLB <- st_read(dsn = THLB_path, 
+                query = attr_query,
+                layer = "prov_THLB_tsas", 
+                wkt_filter = bbox.wkt)
+
+### This is the most efficient 'select by location' process that I know.
+### Selects (but not clip) THLB polygons to Max BGC Range
+# Simplifies sf math from 3D to 2D
+sf_use_s2(FALSE)
+# creates a spatial index of the THLB data. Each feature in the list recieves a number identifying a BGC polygon if there is overlap
+matches <- st_intersects(THLB, BGC.Range.Max.Simple.400)
+# creates a TRUE/FALSE vector from matches 
+keep_idx <- lengths(matches) > 0
+# selects every row (and all columns) for records based in the keep_idx Logical vector = TRUE
+result <- THLB[keep_idx, ]
+# Resets sf math to default
+sf_use_s2(FALSE)
+# remove THLB
+rm(THLB)
+# cleanup
+gc()
+# Calculate percentage of BGC range which is THLB
+thlb_df <- st_drop_geometry(result)
+THLB.Percent <- (sum(thlb_df$thlb_area_ha, na.rm = TRUE)/sum(thlb_df$area_ha, na.rm = TRUE))*100
+# remove THLB subset
+rm(result)
+# cleanup
+gc()
+#### test export of one subzone variant 
+#sbsmw_subset <- BGC.Range.Max[BGC.Range.Max$MAP_LABEL == 'SBSmw', ]
+#bbox.SBSmw <- st_as_text(st_as_sfc(st_bbox(sbsmw_subset)))
+# Create the spatial object for the SBSmw extent
+#sbsmw_bbox_sfc <- st_as_sfc(st_bbox(sbsmw_subset))
+# Crop the THLB data to this box
+#thlb_sample <- st_crop(thlb_selected, sbsmw_bbox_sfc)
+#st_write(thlb_sample, "SBSmw_THLB_Preview.gpkg", delete_layer = TRUE)
 #################################################### WRITE SPATIAL #################################################################
 # define output path
 out.gpkg <- file.path(getwd(), "outputs", paste0(El.Sub.ID, "-csa-", format(Sys.time(), "%Y%m%d_%H%M"), ".gpkg"))
