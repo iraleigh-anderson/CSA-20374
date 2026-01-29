@@ -17,9 +17,9 @@ library(lwgeom)
 #select layer
 BEC13<- st_read(dsn = BEC13.path, layer = "BEC13_v2")
 #Queries for Range extent
-BGC.Units.Min <- c("ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc1","ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1")
+BGC.Units.Min <- c("BWBSdk", "ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc1","ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3","SBSmc",  "SBSmc2", "SBSmk1", "SBSmk2", "SBSmw", "SBSvk", "SBSwk1")
 # minimal evidence supports occurrence of Ws04 in the BWBS. LMH 52 does not list Ws04 in the BWBS or SWB.  LMH68 does not list Ws04 or related Fl05 in any BWBS.  BWBSmw and wk1 seem to be at the NE margin of S. drummondiana and Spiraea douglasii range. Two plots support the occurrence of the Ws04 in the SBSdh1 (Kyla Rushton personal communication)
-BGC.Units.Max <- c("BWBSwk1", "BWBSmw", "ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc1","ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc2", "SBSmk1", "SBSmw", "SBSwk1", "SBSwk2")
+BGC.Units.Max <- c("BWBSdk","BWBSwk1", "BWBSmw", "ESSFdc1", "ESSFdc2", "ESSFmh", "ESSFwm2", "ESSFxc1","ESSFxc2", "ICHdw4", "ICHmk1", "ICHmk2", "ICHmk3", "ICHmw3", "ICHmw5", "ICHvc", "ICHwk1", "ICHxm1", "IDFdk1", "IDFdk2", "IDFdk5", "IDFdm1", "IDFdm2", "IDFxk", "MSdk", "MSdm1", "MSdm2", "MSdm3", "MSdw", "MSxk1", "MSxk2", "SBPSdc", "SBPSmk", "SBPSxc","SBSdh1", "SBSdk", "SBSdw2", "SBSdw3", "SBSmc", "SBSmc2", "SBSmk1", "SBSmk2", "SBSmw", "SBSvk","SBSwk1", "SBSwk2")
 
 BGC.Range.Min <- BEC13 %>% filter(MAP_LABEL %in% BGC.Units.Min)
 BGC.Range.Max <- BEC13 %>% filter(MAP_LABEL %in% BGC.Units.Max)
@@ -51,15 +51,13 @@ TEI.proj.bound.all <- st_filter(TEI.proj.bound.all, BGC.Range.Max)
 
 ###Maxiumum TEI Project Boundary/BGC Range Overlap Estimate
 # This excludes PEM and other projects that inventory at a thematic scalle too coarse to capture the 20374
-# It includes all TEI datasets that could conceivably detect the 20374, though it is uncertain whether all
-# of these projects effectively inventory for the 20374. This only includes the core BGC Range, not the
-# BGCs where occurrence of the 20374 is yet to be confirmed with confidence.
+# It includes all TEI datasets that could conceivably detect the 20374, though it is uncertain whether all of these projects effectively inventory for the 20374. This only includes the core BGC Range, not the max range, where occurrence of the 20374 is yet to be confirmed with confidence.
 TEI.proj.bound.max <- st_read(
   dsn   = TEI.proj.bound.path,
   query = "
     SELECT *
     FROM WHSE_TERRESTRIAL_ECOLOGY_STE_TEI_PROJECT_BOUNDARIES_SP
-    WHERE BUSINESS_AREA_PROJECT_ID IN (1, 2, 4, 9, 27, 28, 79, 91, 108, 114, 115, 119, 135, 145, 149, 183, 184, 192, 196, 198, 208, 209, 213, 214, 216, 218, 219, 221, 222, 226, 231, 233, 239, 240, 244, 247, 248, 1027, 1037, 1046, 1048, 1049, 1054, 1055, 1058, 1059, 1060, 1068, 1070, 4479, 4482, 4498, 4508, 4523, 4917, 5679, 5680, 6130, 6131, 6473, 6484, 6526, 6536, 6537, 6605, 6624)
+    WHERE BUSINESS_AREA_PROJECT_ID IN (1, 2, 4, 9, 27, 28, 79, 91, 108, 114, 115, 119, 135, 145, 149, 183, 184, 192, 196, 198, 208, 209, 213, 214, 216, 218, 219, 221, 222, 226, 231, 233, 239, 240, 244, 247, 248, 1027, 1037, 1046, 1048, 1049, 1054, 1055, 1058, 1060, 1068, 1070, 4479, 4482, 4498, 4508, 4523, 4917, 5679, 5680, 6130, 6131, 6473, 6484, 6526, 6536, 6537, 6605, 6624)
   ")
 overlap_sf <- st_intersection(BGC.Range.Min, TEI.proj.bound.max)
 # Dissolve overlapping geometries
@@ -77,7 +75,7 @@ TEI.proj.bound.min <- st_read(
   query = "
     SELECT *
     FROM WHSE_TERRESTRIAL_ECOLOGY_STE_TEI_PROJECT_BOUNDARIES_SP
-    WHERE BUSINESS_AREA_PROJECT_ID IN (4, 108, 135, 209, 216, 233, 239, 244, 1046, 1048, 1049, 1054, 1055, 4917, 4523, 6473, 6536, 6605, 6624)
+    WHERE BUSINESS_AREA_PROJECT_ID IN (4, 108, 115, 135, 209, 216, 233, 239, 244, 1046, 1048, 1049, 1054, 1055, 4917, 4523, 6473, 6536, 6605, 6624)
   ")
 ### determine MIN extent of overlap between selected ecosystem mapping projects and BGC Range 
 overlap_sf <- st_intersection(BGC.Range.Min, TEI.proj.bound.min)
@@ -160,6 +158,23 @@ BEC.Master.Focal.sf <- st_transform(BEC.Master.Focal.sf, crs = 3005)
 # Buffer each point by half the LocationAccuracy for viewing in GIS
 BEC.Master.Focal.sf.buffer <- BEC.Master.Focal.sf %>%
   mutate(geometry = st_buffer(geometry, dist = LocationAccuracy / 2))
+################################################  OTHER PLOTS - QUERY AND CLEAN ##################################################
+# These are the WIlliston Wetlands plots from BAPID 6538
+plots.6538.2017 <- st_read(dsn   = "V:/ESR Spatial/20374/data/BAPID 6538 material from EcoCat/FieldData/FieldData_2017_raw.shp",  query = "SELECT * FROM FieldData_2017_raw WHERE WetlandAss = 'Ws04'")
+plots.6538.2019 <- st_read(dsn  = "V:/ESR Spatial/20374/data/BAPID 6538 material from EcoCat/FieldData/FieldData_2019_raw.shp", query = "SELECT * FROM FieldData_2019_raw WHERE WetlandAss = 'Ws04'")
+# Map 2019 PlotNum -> PlotNo 
+if ("PlotNum" %in% names(plots.6538.2019) && !"PlotNo" %in% names(plots.6538.2019)) {
+  plots.6538.2019 <- plots.6538.2019 %>%
+    mutate(PlotNo = PlotNum)
+}
+# Keep only common columns and bind
+common <- intersect(names(plots.6538.2017), names(plots.6538.2019))
+plots.6538.2017x <- plots.6538.2017[, common]
+plots.6538.2019x <- plots.6538.2019[, common]
+plots.6538 <- rbind(plots.6538.2017x, plots.6538.2019x)
+# Buffer for compatibility with NOO analysis. Use 30 m buffer
+plots.6538 <- plots.6538 %>%
+  mutate(geometry = st_buffer(`_ogr_geometry_`, dist = 30))
 ################################################# TEI - QUERY AND CLEAN #########################################################
 ### TEM ###
 # These queries take about 1 hour to run
@@ -219,7 +234,7 @@ SELECT
     PROJ_ID, PROJ_TYPE, OBJECTID, TEIS_ID, PROJPOLYID, BAPID,
     Shape_Area, shape
 FROM TEIS_Master_Long_Tbl
-WHERE BAPID IN (4, 108, 135, 209, 216, 233, 239, 244, 1046, 1048, 1049, 1054, 1055)
+WHERE BAPID IN (4, 108, 115, 135, 209, 216, 233, 239, 244, 1046, 1048, 1049, 1054, 1055)
 "
 
 TEM.m <- st_read(
@@ -241,7 +256,7 @@ TEM.m <- TEM.m %>%
 # I checked and map codes are not appearing in site code field.
 # Further narrows to relevant mapcodes
 fields <- c("SITEMC_S1","SITEMC_S2","SITEMC_S3")
-vals <- c("DS", "WS", "WD")
+vals <- c("DS", "WS", "WD", "DM")
 
 TEM.m <- TEM.m %>%
   filter(if_any(all_of(fields), ~ . %in% vals))
@@ -268,7 +283,9 @@ filter_condition <-
   (TEM.m$BGC.Full == 'SBSdw2' & TEM.m$BAPID == 1048 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
   (TEM.m$BGC.Full == 'SBPSmk' & TEM.m$BAPID == 1049 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
   (TEM.m$BGC.Full == 'SBPSxc' & TEM.m$BAPID == 1054 & (TEM.m$SITEMC_S1 == 'DS' | TEM.m$SITEMC_S2 == 'DS' | TEM.m$SITEMC_S3 == 'DS')) |
-  (TEM.m$BGC.Full == 'IDFdm1' & TEM.m$BAPID == 1055 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS'))
+  (TEM.m$BGC.Full == 'IDFdm1' & TEM.m$BAPID == 1055 & (TEM.m$SITEMC_S1 == 'WS' | TEM.m$SITEMC_S2 == 'WS' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'SBSdk' & TEM.m$BAPID == 115 & (TEM.m$SITEMC_S1 == 'DM' | TEM.m$SITEMC_S2 == 'DM' | TEM.m$SITEMC_S3 == 'WS')) |
+  (TEM.m$BGC.Full == 'SBSmc2' & TEM.m$BAPID == 115 & (TEM.m$SITEMC_S1 == 'DM' | TEM.m$SITEMC_S2 == 'DM' | TEM.m$SITEMC_S3 == 'DM')) 
 
 TEM.m <- TEM.m %>%
   filter(!!filter_condition)
@@ -432,6 +449,11 @@ TEM <- TEM %>%
       BGC.Full == 'MSdm2' & BAPID == 108 & SITEMC_S1 == 'WS' ~ SDEC_1 * 0.1 * Shape_Area,
       BGC.Full == 'MSdm2' & BAPID == 108 & SITEMC_S2 == 'WS' ~ SDEC_2 * 0.1 * Shape_Area,
       BGC.Full == 'MSdm2' & BAPID == 108 & SITEMC_S3 == 'WS' ~ SDEC_3 * 0.1 * Shape_Area,
+      
+      # MSdm2 / DM (BAPID 115)
+      BGC.Full %in% c('SBSmc2', 'SBSdk') & BAPID == 115 & SITEMC_S1 == 'DM' ~ SDEC_1 * 0.1 * Shape_Area,
+      BGC.Full %in% c('SBSmc2', 'SBSdk') & BAPID == 115 & SITEMC_S2 == 'DM' ~ SDEC_2 * 0.1 * Shape_Area,
+      BGC.Full %in% c('SBSmc2', 'SBSdk') & BAPID == 115 & SITEMC_S3 == 'DM' ~ SDEC_3 * 0.1 * Shape_Area,
       # Default case
       TRUE ~ 0.0 
     )
@@ -469,17 +491,33 @@ BEC_prep <- BEC.Vetted.Filtered %>%
   st_set_geometry("geometry") %>%
   st_cast("MULTIPOLYGON")
 #Force name to 'geometry' and cast to Multipolygon
+# st_set_geometry() is used twice here: once to rename 'shape' to 'geometry' and once to ensure it is the active spatial column
 TEM_prep <- TEM %>%
+  st_make_valid() %>% 
+  rename(geometry = shape) %>% 
+  st_set_geometry("geometry") %>% 
+  st_cast("MULTIPOLYGON", warn = FALSE)
+#Force name to 'geometry' and cast to Multipolygon
+plots.6538_prep <- plots.6538 %>%
+  select(-Aspect) %>%
   st_set_geometry("geometry") %>%
   st_cast("MULTIPOLYGON")
 # bind TEM and BEC Plots 
-Occurrences <- bind_rows(BEC_prep, TEM_prep)
+# When creating Occurrences, ensure all objects are verified sf objects before binding
+# bind_rows can sometimes drop the sf class if the first object is not a clean sf object
+Occurrences <- bind_rows(
+  st_as_sf(BEC_prep), 
+  st_as_sf(TEM_prep), 
+  st_as_sf(plots.6538_prep)
+)
+# Set the active geometry explicitly
+Occurrences <- st_set_geometry(Occurrences, "geometry")
 # Reset metadata for Terra
 Occurrences <- st_as_sf(Occurrences)
 ### minimum NOO estimate. Removing BWBS and SBSwk2 and NA values from the bind
 valid.occurrences.min <- Occurrences %>% 
   filter(
-    (BGC_ZONE != 'BWBS' & BGC.Full != 'SBSwk2') | 
+    (BGC.Full != 'BWBSmk' & BGC.Full != 'BWBSwk1' & BGC.Full != 'SBSwk2') | 
       is.na(BGC_ZONE) | 
       is.na(BGC.Full)
   )
@@ -602,62 +640,40 @@ impact.summary.df <- Impacts %>%
     CEF_DISTURB_GROUP = ifelse(is.na(CEF_DISTURB_GROUP), "No Recorded Human Disturbance", CEF_DISTURB_GROUP),
     percent = round((unique_teis_count / nrow(TEM)) * 100, 0)
   )
-#####################################################  THREATS #################################################
-### THLB scope determination
-THLB_path<-"V:/BaseData/TSA_THLB.gpkg"
-# Create a bounding box from BGC unit geometry.
-bbox.wkt <- st_as_text(st_as_sfc(st_bbox(BGC.Range.Max)))
-# Create simplified BGC range sf for efficiency
-BGC.Range.Max.Simple.400 <- st_simplify(BGC.Range.Max, 
-                                        preserveTopology = TRUE, 
-                                        dTolerance = 400) # smooth to 400 meters
-
-# GDB UPLOAD uses bounding box wkt filter defined under TRENDS above
-#THLB <- st_read(dsn = THLB.path, 
-                #layer = "prov_THLB_tsas", 
-                #wkt_filter = bbox.wkt)
-
-# experimental GPKG upload
-# only rows that are in the THLB use  "WHERE thlb_fact > 0"
-# but should include THLB
-attr_query <- "SELECT * FROM prov_THLB_tsas"
-# This uses the spatial index for the box AND the SQL engine for the attribute (20 minutes)
-THLB <- st_read(dsn = THLB_path, 
-                query = attr_query,
-                layer = "prov_THLB_tsas", 
-                wkt_filter = bbox.wkt)
-
+#####################################################  THREATS ################################################# 
+### Determine percentage of AOO polygons that are in the proxy THLB.
+#bounding box around max MCP to narrow down initial pTHLB query
+bbox.wkt <- st_as_text(st_as_sfc(st_bbox(BGC.MCP.Inf.Max)))
+# Proxy THLB (pTHLB) is like THLB but calculated more regularly at the provincial scale.
+#THLB Proxy GDB query uses bounding box wkt filter 
+pTHLB <- st_read(dsn = THLB.Proxy.Path, 
+                 layer = "provincial_pthlb", 
+                 wkt_filter = bbox.wkt)
 ### This is the most efficient 'select by location' process that I know.
 ### Selects (but not clip) THLB polygons to Max BGC Range
 # Simplifies sf math from 3D to 2D
 sf_use_s2(FALSE)
 # creates a spatial index of the THLB data. Each feature in the list recieves a number identifying a BGC polygon if there is overlap
-matches <- st_intersects(THLB, BGC.Range.Max.Simple.400)
+matches <- st_intersects(pTHLB, Occurrences)
 # creates a TRUE/FALSE vector from matches 
 keep_idx <- lengths(matches) > 0
 # selects every row (and all columns) for records based in the keep_idx Logical vector = TRUE
-result <- THLB[keep_idx, ]
-# Resets sf math to default
-sf_use_s2(FALSE)
-# remove THLB
-rm(THLB)
-# cleanup
+result <- pTHLB[keep_idx, ]
+# dissolved (union) Occurrences and use to crop (intersection pTHLB)
+pthlb_cropped <- st_intersection(result, st_union(Occurrences))
+# Re-calculate area on the cropped pTHLB
+pthlb_cropped$area_cropped <- st_area(pthlb_cropped)
+# Drop geometry
+thlb_df <- st_drop_geometry(pthlb_cropped)
+
+# Calculate the percentage of total pTHLB polygons in occurrence polygons that are pTHLB
+thlb_percent <- (sum(as.numeric(thlb_df$area_cropped) * thlb_df$pthlb_fact, na.rm = TRUE)/sum(as.numeric(thlb_df$area_cropped), na.rm = TRUE)) * 100
+# Cleanup memory
+rm(pTHLB, result)
 gc()
-# Calculate percentage of BGC range which is THLB
-thlb_df <- st_drop_geometry(result)
-THLB.Percent <- (sum(thlb_df$thlb_area_ha, na.rm = TRUE)/sum(thlb_df$area_ha, na.rm = TRUE))*100
-# remove THLB subset
-rm(result)
-# cleanup
-gc()
-#### test export of one subzone variant 
-#sbsmw_subset <- BGC.Range.Max[BGC.Range.Max$MAP_LABEL == 'SBSmw', ]
-#bbox.SBSmw <- st_as_text(st_as_sfc(st_bbox(sbsmw_subset)))
-# Create the spatial object for the SBSmw extent
-#sbsmw_bbox_sfc <- st_as_sfc(st_bbox(sbsmw_subset))
-# Crop the THLB data to this box
-#thlb_sample <- st_crop(thlb_selected, sbsmw_bbox_sfc)
-#st_write(thlb_sample, "SBSmw_THLB_Preview.gpkg", delete_layer = TRUE)
+sf_use_s2(TRUE)
+
+st_write(pthlb_cropped, "pthlb.gpkg",layer = "pthlb")
 #################################################### WRITE SPATIAL #################################################################
 # define output path
 out.gpkg <- file.path(getwd(), "outputs", paste0(El.Sub.ID, "-csa-", format(Sys.time(), "%Y%m%d_%H%M"), ".gpkg"))
