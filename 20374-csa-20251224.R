@@ -699,30 +699,31 @@ st_write(TEI.proj.bound.min, out.gpkg, layer = "TEI Project Boundaries (Min - va
 st_write(TEI.proj.bound.max, out.gpkg, layer = "TEI Project Boundaries (Max - valid)")
 ############################################################### WRITE TABLES ####################################################
 ### Round all values for reporting
-round <- list(
+text_list <- list(
   # Range
-  BGC.MCP.Inf.Min.area.km2     = round(BGC.MCP.Inf.Min.area.km2, 0),
-  BGC.MCP.Inf.Max.area.km2     = round(BGC.MCP.Inf.Max.area.km2, 0),
-  BGC.MCP.Obs.Min.area.km2     = round(BGC.MCP.Obs.Min.area.km2, 0),
-  BGC.Range.Min.km2            = round(BGC.Range.Min.km2, 0),
-  BGC.Range.Max.km2            = round(BGC.Range.Max.km2, 0),
-  BGC.Range.Mapped.Min.Percent = round(BGC.Range.Mapped.Min.Percent, 1),
-  BGC.Range.Mapped.Max.Percent = round(BGC.Range.Mapped.Max.Percent, 1),
-  BGC.Range.Mapped.Min.km2     = round(BGC.Range.Mapped.Min.km2, 1),
-  BGC.Range.Mapped.Max.km2     = round(BGC.Range.Mapped.Max.km2, 1),
+  BGC.MCP.Inf.Min.area.km2     = format(round(BGC.MCP.Inf.Min.area.km2, 0), big.mark = ","),
+  BGC.MCP.Inf.Max.area.km2     = format(round(BGC.MCP.Inf.Max.area.km2, 0), big.mark = ","),
+  BGC.MCP.Obs.Min.area.km2     = format(round(BGC.MCP.Obs.Min.area.km2, 0), big.mark = ","),
+  BGC.Range.Min.km2            = format(round(BGC.Range.Min.km2, 0), big.mark = ","),
+  BGC.Range.Max.km2            = format(round(BGC.Range.Max.km2, 0), big.mark = ","),
+  BGC.Range.Mapped.Min.Percent = format(round(BGC.Range.Mapped.Min.Percent, 1), big.mark = ","),
+  BGC.Range.Mapped.Max.Percent = format(round(BGC.Range.Mapped.Max.Percent, 1), big.mark = ","),
+  BGC.Range.Mapped.Min.km2     = format(round(BGC.Range.Mapped.Min.km2, 1), big.mark = ","),
+  BGC.Range.Mapped.Max.km2     = format(round(BGC.Range.Mapped.Max.km2, 1), big.mark = ","),
   # AOO
-  AOO.Obs.Min.km2              = round(AOO.Obs.Min.km2, 0),
-  AOO.Obs.Max.km2              = round(AOO.Obs.Max.km2, 0),
-  AOO.Est.Min.km2              = round(AOO.Est.Min.km2, 0),
-  AOO.Est.Max.km2              = round(AOO.Est.Max.km2, 0),
-  Patch.Size.Avg.ha            = round(Patch.Size.Avg.ha, 1),
-  Patch.Size.Med.ha            = round(Patch.Size.Med.ha, 1),
-  Patch.Size.Max.ha            = round(Patch.Size.Max.ha, 1),
+  AOO.Obs.Min.km2              = format(round(AOO.Obs.Min.km2, 0), big.mark = ","),
+  AOO.Obs.Max.km2              = format(round(AOO.Obs.Max.km2, 0), big.mark = ","),
+  AOO.Est.Min.km2              = format(round(AOO.Est.Min.km2, 0), big.mark = ","),
+  AOO.Est.Max.km2              = format(round(AOO.Est.Max.km2, 0), big.mark = ","),
+  Patch.Size.Avg.ha            = format(round(Patch.Size.Avg.ha, 1), big.mark = ","),
+  Patch.Size.Med.ha            = format(round(Patch.Size.Med.ha, 1), big.mark = ","),
+  Patch.Size.Max.ha            = format(round(Patch.Size.Max.ha, 1), big.mark = ","),
   # NOO
-  NOO.Count.Min                = round(NOO.Count.Min, 0),
-  NOO.Count.Max                = round(NOO.Count.Max, 0),
-  min.occ.size.km2             = min.occ.size.km2, 
-  sep.dist.m                   = sep.dist.m        
+  NOO.Count.Min                = format(round(NOO.Count.Min, 0), big.mark = ","),
+  NOO.Count.Max                = format(round(NOO.Count.Max, 0), big.mark = ","),
+  # Use trim = TRUE in format to prevent leading spaces in the character output
+  min.occ.size.km2             = format(min.occ.size.km2, big.mark = ",", trim = TRUE), 
+  sep.dist.m                   = format(sep.dist.m, big.mark = ",", trim = TRUE)        
 )
 ### Create Excel doc to begin writing
 data.xlsx <- createWorkbook()
@@ -822,15 +823,15 @@ range_summary <- data.frame(
     "BGC Range Max (km2)"
   ),
   Value = c(
-    round$BGC.MCP.Obs.Min.area.km2,
-    round$BGC.MCP.Inf.Min.area.km2,
-    round$BGC.MCP.Inf.Max.area.km2,
-    round$BGC.Range.Mapped.Min.km2,
-    round$BGC.Range.Mapped.Min.Percent,
-    round$BGC.Range.Mapped.Max.km2,
-    round$BGC.Range.Mapped.Max.Percent,
-    round$BGC.Range.Min.km2,
-    round$BGC.Range.Max.km2
+    text_list$BGC.MCP.Obs.Min.area.km2,
+    text_list$BGC.MCP.Inf.Min.area.km2,
+    text_list$BGC.MCP.Inf.Max.area.km2,
+    text_list$BGC.Range.Mapped.Min.km2,
+    text_list$BGC.Range.Mapped.Min.Percent,
+    text_list$BGC.Range.Mapped.Max.km2,
+    text_list$BGC.Range.Mapped.Max.Percent,
+    text_list$BGC.Range.Min.km2,
+    text_list$BGC.Range.Max.km2
   ))
 writeData(data.xlsx, "Range Summary", range_summary, startRow = 1)
 setColWidths(data.xlsx, sheet = "Range Summary", cols = 1:2, widths = "auto")
@@ -847,13 +848,13 @@ aoo_summary <- data.frame(
     "Median Patch Size (ha)"
   ),
   Value = c(
-    round$AOO.Obs.Min.km2,
-    round$AOO.Obs.Max.km2,
-    round$AOO.Est.Min.km2,
-    round$AOO.Est.Max.km2,
-    round$Patch.Size.Avg.ha,
-    round$Patch.Size.Max.ha,
-    round$Patch.Size.Med.ha
+    text_list$AOO.Obs.Min.km2,
+    text_list$AOO.Obs.Max.km2,
+    text_list$AOO.Est.Min.km2,
+    text_list$AOO.Est.Max.km2,
+    text_list$Patch.Size.Avg.ha,
+    text_list$Patch.Size.Max.ha,
+    text_list$Patch.Size.Med.ha
   ))
 writeData(data.xlsx, "AOO Summary", aoo_summary, startRow = 1)
 setColWidths(data.xlsx, sheet = "AOO Summary", cols = 1:2, widths = "auto")
@@ -864,10 +865,10 @@ noo_summary <- data.frame(
                 "NOO Maximum Count", 
                 "Minimum Occurrence Size (km2)", 
                 "Separation Distance (m)"),
-  Value = c(round$NOO.Count.Min, 
-            round$NOO.Count.Max, 
-            round$min.occ.size.km2, 
-            round$sep.dist.m))
+  Value = c(text_list$NOO.Count.Min, 
+            text_list$NOO.Count.Max, 
+            text_list$min.occ.size.km2, 
+            text_list$sep.dist.m))
 writeData(data.xlsx, "NOO Summary", noo_summary, startRow = 1)
 setColWidths(data.xlsx, sheet = "NOO Summary", cols = 1:2, widths = "auto")
 # Write Impacts Summary
@@ -876,15 +877,15 @@ writeData(data.xlsx, sheet = "Impact Summary", x = impact.summary.df)
 setColWidths(data.xlsx, sheet = "Impact Summary", cols = 1:3, widths = "auto")
 ######################################################## FACTOR COMMENTS #######################################################
 ### assign text variables
-Comments.Range.Extent <- glue("The observed range extent of this ecological community is {round$BGC.MCP.Obs.Min.area.km2} km2. It was calculated based on the area of a minimum convex polygon around all extant records of the community in ecosystem mapping (Ministry of Water, Land and Resource Stewardship n.d.) and confirmed ecosystem plot locations (BC Ministry of Forests n.d.). The observed range extent is an underestimate because inventory for this ecological community is incomplete. We infer that the range extent of this ecological community is between {round$BGC.MCP.Inf.Min.area.km2} km2 and {round$BGC.MCP.Inf.Max.area.km2} km2. The inferences are based on the area within minimum convex polygons around the boundaries of biogeoclimatic (BGC) units where the ecological community is known to occur (minimum), and around all BGC unit boundaries where it is known to occur plus those where it has been reported but not yet confirmed (maximum). The area within BGC units where the ecological community is known to occur is known as the BGC range. We estimate that the BGC range is between {round$BGC.Range.Min.km2} km2 and {round$BGC.Range.Max.km2} km2 based on the same subsets of BGC units used to calculate the minimum and maximum range extent above. The BGC range of this ecological community was determined based on expert observations (Deb MacKillop pers. com., Kristi Iverson pers. com., Kyla Rushton pers. com., and Harry Williams pers. com.), ecosystem plot locations from the BECMaster database (Ministry of Forests, n.d.), ecosystem mapping records (Ministry of Water, Land and Resource Stewardship n.d.), and from Biogeoclimatic Ecosystem Classification publications (MacKenzie and Moran 2004, MacKillop and Ehman 2016, MacKillop et al. 2018 and 2021, and Ryan et al. 2022). The BGC range mapping is based on BEC Version 13 (Ministry of Forests, n.d.).")
-Comments.AOO <- glue("The observed area of occupancy (AOO) for this ecological community is between {round$AOO.Obs.Min.km2} km2 and {round$AOO.Obs.Max.km2} km2. The observed AOO values are based on the sums of the areas of the ecological community in ecosystem mapping records in BGC units where the ecological community is known to occur (minimum), and the sums of the areas of the ecological community in all BGC units where it is known to occur plus those where it has been reported but not yet confirmed. Five TEM Projects (BAPID numbers: 4, 216, 4523, 4917, 6536,6605) recorded occupancy rates for this ecological community across five BGC units (ESSFdc2, IDFdk2, SBSdk, SBSmc2, SBSmk1). The rate of occupancy ranged from 0.03% to 1.02% (excluding obvious outliers, or instances where the mapping was geographically constrained in a manner that would bias occupancy rates). The estimated AOO is between {round$AOO.Est.Min.km2} km2, and {round$AOO.Est.Max.km2} km2. The estimates were calculated by multiplying the area of the minimum and maximum estimated BGC range of the ecological community by minimum and maximum occupancy rates. It is challenging to determine how much inventory capable of recording this ecological community has occurred. Though a great deal of the BGC range is covered by ecosystem mapping project boundaries, most of it is predictive ecosystem mapping that does not identify wetland ecosystems to the site association level. Only {round$BGC.Range.Mapped.Min.Percent} percent of the BGC range is covered by mapping projects that recorded this ecological community and can therefore be confirmed as valid inventory. Up to {round$BGC.Range.Mapped.Max.Percent} percent of the BGC range is covered by other ecosystem mapping projects that appear capable of detecting the community.")
-Comments.NOO <- glue("There are between {round$NOO.Count.Min} and {round$NOO.Count.Max} observed occurrences of this ecological community based on counts of clusters of extant records with a minimum patch size of 2 ha and a separation distance of {round$sep.dist.m} meters. The observed NOO values are based on counts of clusters of ecosystem mapping records and plot locations in BGC units where the community is known to occur (minimum), and records from all BGC units where it is known to occur plus those where it has been reported but not yet confirmed. Based on the high number of records and the low rate of inventory for this ecological community, we infer that there are greater than 300 occurrences total.")
+Comments.Range.Extent <- glue("The observed range extent of this ecological community is {text_list$BGC.MCP.Obs.Min.area.km2} km2. It was calculated based on the area of a minimum convex polygon around all extant records of the community in ecosystem mapping (Ministry of Water, Land and Resource Stewardship n.d.) and confirmed ecosystem plot locations (BC Ministry of Forests n.d.). The observed range extent is an underestimate because inventory for this ecological community is incomplete. We infer that the range extent of this ecological community is between {text_list$BGC.MCP.Inf.Min.area.km2} km2 and {text_list$BGC.MCP.Inf.Max.area.km2} km2. The inferences are based on the area within minimum convex polygons around the boundaries of biogeoclimatic (BGC) units where the ecological community is known to occur (minimum), and around all BGC unit boundaries where it is known to occur plus those where it has been reported but not yet confirmed (maximum). The area within BGC units where the ecological community is known to occur is known as the BGC range. We estimate that the BGC range is between {text_list$BGC.Range.Min.km2} km2 and {text_list$BGC.Range.Max.km2} km2 based on the same subsets of BGC units used to calculate the minimum and maximum range extent above. The BGC range of this ecological community was determined based on expert observations (Deb MacKillop pers. com., Kristi Iverson pers. com., Kyla Rushton pers. com., and Harry Williams pers. com.), ecosystem plot locations from the BECMaster database (Ministry of Forests, n.d.), ecosystem mapping records (Ministry of Water, Land and Resource Stewardship n.d.), and from Biogeoclimatic Ecosystem Classification publications (MacKenzie and Moran 2004, MacKillop and Ehman 2016, MacKillop et al. 2018 and 2021, and Ryan et al. 2022). The BGC range mapping is based on BEC Version 13 (Ministry of Forests, n.d.).")
+Comments.AOO <- glue("The observed area of occupancy (AOO) for this ecological community is between {text_list$AOO.Obs.Min.km2} km2 and {text_list$AOO.Obs.Max.km2} km2. The observed AOO values are based on the sums of the areas of the ecological community in ecosystem mapping records in BGC units where the ecological community is known to occur (minimum), and the sums of the areas of the ecological community in all BGC units where it is known to occur plus those where it has been reported but not yet confirmed. Five TEM Projects (BAPID numbers: 4, 216, 4523, 4917, 6536,6605) recorded occupancy rates for this ecological community across five BGC units (ESSFdc2, IDFdk2, SBSdk, SBSmc2, SBSmk1). The rate of occupancy ranged from 0.03% to 1.02% (excluding obvious outliers, or instances where the mapping was geographically constrained in a manner that would bias occupancy rates). The estimated AOO is between {text_list$AOO.Est.Min.km2} km2, and {text_list$AOO.Est.Max.km2} km2. The estimates were calculated by multiplying the area of the minimum and maximum estimated BGC range of the ecological community by minimum and maximum occupancy rates. It is challenging to determine how much inventory capable of recording this ecological community has occurred. Though a great deal of the BGC range is covered by ecosystem mapping project boundaries, most of it is predictive ecosystem mapping that does not identify wetland ecosystems to the site association level. Only {text_list$BGC.Range.Mapped.Min.Percent} percent of the BGC range is covered by mapping projects that recorded this ecological community and can therefore be confirmed as valid inventory. Up to {text_list$BGC.Range.Mapped.Max.Percent} percent of the BGC range is covered by other ecosystem mapping projects that appear capable of detecting the community.")
+Comments.NOO <- glue("There are between {text_list$NOO.Count.Min} and {text_list$NOO.Count.Max} observed occurrences of this ecological community based on counts of clusters of extant records with a minimum patch size of 2 ha and a separation distance of {text_list$sep.dist.m} meters. The observed NOO values are based on counts of clusters of ecosystem mapping records and plot locations in BGC units where the community is known to occur (minimum), and records from all BGC units where it is known to occur plus those where it has been reported but not yet confirmed. Based on the high number of records and the low rate of inventory for this ecological community, we infer that there are greater than 300 occurrences total.")
 Comments.NOOGEI <- glue("Insufficient data. Factor not assessed.")
 Comments.AOOGEI <- glue("Insufficient data. Factor not assessed.")
 Comments.Env.Spe <- glue("Factor not assessed.")
-Comments.Assigned.Threats <- glue("Overall, {impact.summary.df$percent[impact.summary.df$CEF_DISTURB_GROUP == 'Cutblocks']}% of ecosystem mapping polygons (Ministry of Water, Land and Resource Stewardship n.d.) containing this ecological community intersect timber harvest polygons (Cumulative Effects Framework 2023). Though not the target of timber harvest, the ecological integrity of occurrences of this community may be impacted by ongoing timber harvest activity. The severity and scope of impacts from timber harvest are not known. Potential Impacts from climate change are unknown. This community has a large BGC range and climate change impacts may vary geographically, so the scope of climate change threat is unknown. Likewise, the severity of climate change impacts is unknown as we could not find information on how vulnerable this community is to various potential climate impacts (e.g., increased temperature, decreased precipitation, and changes in seasonality). It is possible that hydroclimatic conditions may support the expansion of the area suitable for this ecological community in parts of it’s biogeoclimatic range (Rodrigues et al. 2025). More geographic occurrence data is required to confidently determine trends and threats for this community.")
+Comments.Assigned.Threats <- glue("Overall, {impact.summary.df$percent[impact.summary.df$CEF_DISTURB_GROUP == 'Cutblocks']}% of ecosystem mapping polygons (Ministry of Water, Land and Resource Stewardship n.d.) containing this ecological community intersect timber harvest polygons (Cumulative Effects Framework 2023). Though not the target of timber harvest, the ecological integrity of occurrences of this community may be impacted by ongoing timber harvest activity. The severity and scope of impacts from timber harvest are not known. Potential Impacts from climate change are unknown. This community has a large BGC range and climate change impacts may vary geographically, so the scope of climate change threat is unknown. Likewise, the severity of climate change impacts is unknown as we could not find information on how vulnerable this community is to various potential climate impacts (e.g., increased temperature, decreased precipitation, and changes in seasonality). It is possible that hydroclimatic conditions may support the expansion of the area suitable for this ecological community in parts of it’s biogeoclimatic range (Rodrigues et al. 2025). More geographic occurrence data is required to confidently determine trends and assess threats for this community.")
 Comments.Calculated.Threats <- glue("")
-Comments.Int.Vul <- glue("Factor not assessed.")
+Comments.Int.Vul <- glue("Willows and sedges could recover from disturbance in less than ten years. Development of mature willows takes more than 10 but less than 100 years.")
 Comments.Short.Term.Trends <- glue("Insufficient data. Factor not assessed.")
 Comments.Long.Term.Trends <- glue("Overall, 46% of ecosystem mapping polygons (Ministry of Water, Land and Resource Stewardship n.d.) containing this ecological community intersect timber harvest polygons (Cumulative Effects Framework 2023). Though not the target of timber harvest, the ecological integrity of occurrences of this community may be impacted by ongoing timber harvest activity. A Review of satellite imagery from 1984 to present suggests that known occurrences have been preserved. Obvious destruction or conversion from timber harvest were not observed. Some early cut blocks adjacent to occurrences have regenerated while new more recent cut blocks have been made adjacent to occurrences. Other human impacts such as mining, transmission lines, and residential development are smaller in scope (Cumulative Effects Framework 2023), but likely contribute to localized degradation of some occurrences of this ecological community. Increasing road density is a feature common to various industrial/residential human use in the last 200 years. The effects of roads on wetlands are varied and depend how and where they are constructed (Adamus 2014).We suspect that there has been a decline in the number of occurrences with good ecological integrity over the long-term period. This assumes that timber harvest and fire suppression have significantly altered the conditions of forest stands adjacent to this ecological community across it’s BGC range in the last 200 years. Timber harvest can decrease local evapotranspiration and lift local water tables, potentially increasing the total area of conditions suitable for the development of this ecological community (Adamus 2014). However, this effect may be temporary. Overall, it seems safe to suspect that conversion and altered hydrology from timber harvest and road building have degraded more occurrences (Adamus 2014) than would have been created, but supporting evidence is absent at this time.
 ")
